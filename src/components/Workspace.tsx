@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Player } from '@remotion/player';
 import UploadForm from './UploadForm/UploadForm.component';
-import { LyricsVideoContent } from './LyricsVideo';
+import SubtitledVideoContent from './SubtitledVideo';
 import { RenderControl } from './RenderControl';
 import VideoPreview from './VideoPreview';
 import { LyricEntry, VideoMetadata, AudioFiles } from '../types';
@@ -311,8 +311,8 @@ const Workspace: React.FC<WorkspaceProps> = ({ tabId }) => {
             <PreviewGrid>
               <PreviewContainer>
                 <Player
-                  key={`${tabId}-${metadata.videoType}-${metadata.artist}-${metadata.songTitle}-${audioUrls.main}-${audioUrls.instrumental}-${audioUrls.vocal}-${audioUrls.littleVocal}-${albumArtUrl}-${JSON.stringify(backgroundUrls)}-${metadata.resolution}-${metadata.frameRate}`}
-                  component={LyricsVideoContent}
+                  key={`${tabId}-${metadata.videoType}-${metadata.title}-${metadata.description}-${audioUrls.main}-${audioUrls.narration}-${JSON.stringify(backgroundUrls)}-${metadata.resolution}-${metadata.frameRate}`}
+                  component={SubtitledVideoContent}
                   durationInFrames={durationInFrames}
                   compositionWidth={metadata.resolution === '2K' ? 2560 : 1920}
                   compositionHeight={metadata.resolution === '2K' ? 1440 : 1080}
@@ -324,14 +324,10 @@ const Workspace: React.FC<WorkspaceProps> = ({ tabId }) => {
                   }}
                   inputProps={{
                     audioUrl: audioUrls.main,
-                    instrumentalUrl: audioUrls.instrumental,
-                    vocalUrl: audioUrls.vocal,
-                    littleVocalUrl: audioUrls.littleVocal,
+                    narrationUrl: audioUrls.narration,
                     lyrics: lyrics || [],
                     durationInSeconds,
-                    albumArtUrl,
                     backgroundImageUrl: backgroundUrls[metadata.videoType] || '',
-                    backgroundImagesMap: backgroundUrls,
                     metadata
                   }}
                 />
@@ -342,14 +338,10 @@ const Workspace: React.FC<WorkspaceProps> = ({ tabId }) => {
                     audioFile={audioFiles.main}
                     lyrics={lyrics}
                     durationInSeconds={durationInSeconds}
-                    albumArtFile={albumArtFile}
                     backgroundFile={backgroundFiles[metadata.videoType]}
-                    backgroundFiles={backgroundFiles}
                     metadata={metadata}
                     onRenderComplete={handleRenderComplete}
-                    vocalFile={audioFiles.vocal || null}
-                    instrumentalFile={audioFiles.instrumental || null}
-                    littleVocalFile={audioFiles.littleVocal || null}
+                    narrationFile={audioFiles.narration || null}
                   />
                 </RenderControlContainer>
               </PreviewContainer>

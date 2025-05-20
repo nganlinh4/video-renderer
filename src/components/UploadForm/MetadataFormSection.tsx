@@ -3,16 +3,16 @@ import { Input, Select, InputLabel } from '../StyledComponents';
 import { FormGrid } from './UploadForm.styles';
 
 interface MetadataFormSectionProps {
-  artist: string;
-  songTitle: string;
+  title: string;
+  description: string;
   videoType: string;
   handleMetadataChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
   t: (key: string) => string;
 }
 
 const MetadataFormSection: React.FC<MetadataFormSectionProps> = ({
-  artist,
-  songTitle,
+  title,
+  description,
   videoType,
   handleMetadataChange,
   t
@@ -20,38 +20,36 @@ const MetadataFormSection: React.FC<MetadataFormSectionProps> = ({
   return (
     <FormGrid>
       <div>
-        <InputLabel>{t('artistName')}</InputLabel>
+        <InputLabel>Video Title</InputLabel>
         <Input
           type="text"
-          name="artist"
-          value={artist}
+          name="title"
+          value={title}
           onChange={handleMetadataChange}
-          placeholder={t('artistName')}
+          placeholder="Enter video title"
         />
       </div>
 
       <div>
-        <InputLabel>{t('songTitle')}</InputLabel>
+        <InputLabel>Description</InputLabel>
         <Input
           type="text"
-          name="songTitle"
-          value={songTitle}
+          name="description"
+          value={description}
           onChange={handleMetadataChange}
-          placeholder={t('songTitle')}
+          placeholder="Enter video description"
         />
       </div>
 
       <div>
-        <InputLabel>{t('videoType')}</InputLabel>
+        <InputLabel>Video Type</InputLabel>
         <Select
           name="videoType"
           value={videoType}
           onChange={handleMetadataChange}
+          disabled
         >
-          <option value="Lyrics Video">{t('lyricsVideo')}</option>
-          <option value="Vocal Only">{t('vocalOnly')}</option>
-          <option value="Instrumental Only">{t('instrumentalOnly')}</option>
-          <option value="Little Vocal">{t('littleVocalVideo')}</option>
+          <option value="Subtitled Video">Subtitled Video</option>
         </Select>
       </div>
     </FormGrid>

@@ -80,13 +80,11 @@ interface RenderControlProps {
   audioFile: File | null;
   lyrics: LyricEntry[] | null;
   durationInSeconds: number;
-  albumArtFile?: File | null;
   backgroundFile?: File | null;
-  backgroundFiles?: { [key: string]: File | null };
   metadata: {
-    artist: string;
-    songTitle: string;
-    videoType: 'Lyrics Video' | 'Vocal Only' | 'Instrumental Only' | 'Little Vocal';
+    title: string;
+    description: string;
+    videoType: 'Subtitled Video';
     lyricsLineThreshold: number;
     metadataPosition: number;
     metadataWidth: number;
@@ -94,23 +92,17 @@ interface RenderControlProps {
     frameRate: 30 | 60;
   };
   onRenderComplete: (videoPath: string) => void;
-  vocalFile?: File | null;
-  instrumentalFile?: File | null;
-  littleVocalFile?: File | null;
+  narrationFile?: File | null;
 }
 
 export const RenderControl: React.FC<RenderControlProps> = ({
   audioFile,
   lyrics,
   durationInSeconds,
-  albumArtFile,
   backgroundFile,
-  backgroundFiles = {},
   metadata,
   onRenderComplete,
-  vocalFile,
-  instrumentalFile,
-  littleVocalFile
+  narrationFile
 }) => {
   const { t } = useLanguage();
   const [isRendering, setIsRendering] = useState(false);
@@ -154,17 +146,14 @@ export const RenderControl: React.FC<RenderControlProps> = ({
       audioFile,
       lyrics: lyrics || [],
       durationInSeconds,
-      albumArtFile,
-      backgroundFiles: backgroundFiles || {},
+      backgroundFile,
       metadata: {
         ...metadata,
         videoType: metadata.videoType,
         resolution: metadata.resolution,
         frameRate: metadata.frameRate
       },
-      vocalFile,
-      instrumentalFile,
-      littleVocalFile,
+      narrationFile,
       singleVersion: true
     });
   };
@@ -343,14 +332,8 @@ export const RenderControl: React.FC<RenderControlProps> = ({
       // Create URLs for additional audio files if they exist
       const additionalUrls: { [key: string]: string } = {};
 
-      if (vocalFile) {
-        additionalUrls.vocalUrl = URL.createObjectURL(vocalFile);
-      }
-      if (instrumentalFile) {
-        additionalUrls.instrumentalUrl = URL.createObjectURL(instrumentalFile);
-      }
-      if (littleVocalFile) {
-        additionalUrls.littleVocalUrl = URL.createObjectURL(littleVocalFile);
+      if (narrationFile) {
+        additionalUrls.narrationUrl = URL.createObjectURL(narrationFile);
       }
 
       const videoPath = await remotionService.renderVideo(
@@ -358,7 +341,6 @@ export const RenderControl: React.FC<RenderControlProps> = ({
         lyrics,
         durationInSeconds,
         {
-          albumArtUrl: albumArtFile ? URL.createObjectURL(albumArtFile) : undefined,
           backgroundImageUrl: backgroundFile ? URL.createObjectURL(backgroundFile) : undefined,
           metadata,
           ...additionalUrls

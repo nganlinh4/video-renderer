@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback } from 'react';
 import { analyzeAudio } from '../../utils/audioAnalyzer';
 import { LyricEntry } from '../../types';
+import { parseSRT, isSRTContent } from '../../utils/srtParser';
 import {
   AudioFiles,
   VideoMetadata
@@ -12,33 +13,21 @@ export const useUploadFormHandlers = (
   onVideoPathChange: any
 ) => {
   const [mainAudioFile, setMainAudioFile] = useState<File | null>(initialValues?.audioFiles.main || null);
-  const [instrumentalFile, setInstrumentalFile] = useState<File | null>(initialValues?.audioFiles.instrumental || null);
-  const [vocalFile, setVocalFile] = useState<File | null>(initialValues?.audioFiles.vocal || null);
-  const [littleVocalFile, setLittleVocalFile] = useState<File | null>(initialValues?.audioFiles.littleVocal || null);
+  const [narrationFile, setNarrationFile] = useState<File | null>(initialValues?.audioFiles.narration || null);
   const [lyrics, setLyrics] = useState<LyricEntry[] | null>(initialValues?.lyrics || null);
   const [lyricsFile, setLyricsFile] = useState<File | null>(initialValues?.lyricsFile || null);
-  const [albumArtFile, setAlbumArtFile] = useState<File | null>(initialValues?.albumArtFile || null);
-  const [backgroundFiles, setBackgroundFiles] = useState<{ [key: string]: File | null }>(initialValues?.backgroundFiles || {});
+  const [backgroundFile, setBackgroundFile] = useState<File | null>(initialValues?.backgroundFile || null);
   const [error, setError] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState<{[key: string]: boolean}>({});
   const [videoPath, setVideoPath] = useState<string | null>(null);
-  const [artist, setArtist] = useState(initialValues?.metadata.artist || '');
-  const [songTitle, setSongTitle] = useState(initialValues?.metadata.songTitle || '');
-  const [videoType, setVideoType] = useState<'Lyrics Video' | 'Vocal Only' | 'Instrumental Only' | 'Little Vocal'>(
-    initialValues?.metadata.videoType || 'Lyrics Video'
-  );
+  const [title, setTitle] = useState(initialValues?.metadata.title || '');
+  const [description, setDescription] = useState(initialValues?.metadata.description || '');
+  const [videoType] = useState<'Subtitled Video'>('Subtitled Video');
 
   const mainAudioInputRef = useRef<HTMLInputElement>(null);
+  const narrationInputRef = useRef<HTMLInputElement>(null);
   const lyricsInputRef = useRef<HTMLInputElement>(null);
-  const albumArtInputRef = useRef<HTMLInputElement>(null);
   const backgroundInputRef = useRef<HTMLInputElement>(null);
-  const instrumentalInputRef = useRef<HTMLInputElement>(null);
-  const vocalInputRef = useRef<HTMLInputElement>(null);
-  const littleVocalInputRef = useRef<HTMLInputElement>(null);
-  const backgroundLyricsInputRef = useRef<HTMLInputElement>(null);
-  const backgroundVocalInputRef = useRef<HTMLInputElement>(null);
-  const backgroundInstrumentalInputRef = useRef<HTMLInputElement>(null);
-  const backgroundLittleVocalInputRef = useRef<HTMLInputElement>(null);
 
   const debounce = <T extends (...args: any[]) => void>(fn: T, delay: number) => {
     let timeoutId: NodeJS.Timeout;
@@ -66,45 +55,42 @@ export const useUploadFormHandlers = (
   const updateFiles = () => {
     const audioFiles: AudioFiles = {
       main: mainAudioFile,
-      instrumental: instrumentalFile,
-      vocal: vocalFile,
-      littleVocal: littleVocalFile
+      narration: narrationFile
     };
 
     const metadata: VideoMetadata = {
-      artist,
-      songTitle,
+      title,
+      description,
       videoType,
-      lyricsLineThreshold: 41,
-      metadataPosition: -155,
-      metadataWidth: 800,
+      lyricsLineThreshold: 41, // Kept for compatibility
+      metadataPosition: -155, // Kept for compatibility
+      metadataWidth: 800, // Kept for compatibility
       resolution: initialValues?.metadata?.resolution || '1080p',
       frameRate: initialValues?.metadata?.frameRate || 60
     };
 
-    onFilesChange(audioFiles, lyrics, albumArtFile, backgroundFiles, metadata, lyricsFile);
+    onFilesChange(audioFiles, lyrics, backgroundFile, metadata, lyricsFile);
   };
 
   const debouncedUpdateFiles = useCallback(
     debounce((newMetadata: VideoMetadata) => {
       const completeMetadata = {
         ...newMetadata,
-        lyricsLineThreshold: 41,
-        metadataPosition: -155,
-        metadataWidth: 800,
+        lyricsLineThreshold: 41, // Kept for compatibility
+        metadataPosition: -155, // Kept for compatibility
+        metadataWidth: 800, // Kept for compatibility
         resolution: initialValues?.metadata?.resolution || '1080p',
         frameRate: initialValues?.metadata?.frameRate || 60
       };
       onFilesChange(
-        { main: mainAudioFile, instrumental: instrumentalFile, vocal: vocalFile, littleVocal: littleVocalFile },
+        { main: mainAudioFile, narration: narrationFile },
         lyrics,
-        albumArtFile,
-        backgroundFiles,
+        backgroundFile,
         completeMetadata,
         lyricsFile
       );
     }, 500),
-    [mainAudioFile, instrumentalFile, vocalFile, littleVocalFile, lyrics, albumArtFile, backgroundFiles, lyricsFile]
+    [mainAudioFile, narrationFile, lyrics, backgroundFile, lyricsFile]
   );
 
   const handleMetadataChange = (
@@ -112,35 +98,15 @@ export const useUploadFormHandlers = (
   ) => {
     const { name, value } = e.target;
 
-    if (name === 'artist') {
-      setArtist(value);
-    } else if (name === 'songTitle') {
-      setSongTitle(value);
-    } else if (name === 'videoType') {
-      setVideoType(value as VideoMetadata['videoType']);
-      onFilesChange(
-        { main: mainAudioFile, instrumental: instrumentalFile, vocal: vocalFile, littleVocal: littleVocalFile },
-        lyrics,
-        albumArtFile,
-        backgroundFiles,
-        {
-          artist,
-          songTitle,
-          videoType: value as VideoMetadata['videoType'],
-          lyricsLineThreshold: 41,
-          metadataPosition: -155,
-          metadataWidth: 800,
-          resolution: initialValues?.metadata?.resolution || '1080p',
-          frameRate: initialValues?.metadata?.frameRate || 60
-        },
-        lyricsFile
-      );
-      return;
+    if (name === 'title') {
+      setTitle(value);
+    } else if (name === 'description') {
+      setDescription(value);
     }
 
     const newMetadata: VideoMetadata = {
-      artist: name === 'artist' ? value : artist,
-      songTitle: name === 'songTitle' ? value : songTitle,
+      title: name === 'title' ? value : title,
+      description: name === 'description' ? value : description,
       videoType,
       lyricsLineThreshold: 41,
       metadataPosition: -155,
@@ -152,11 +118,11 @@ export const useUploadFormHandlers = (
     debouncedUpdateFiles(newMetadata);
   };
 
-  const handleAudioChange = async (e: React.ChangeEvent<HTMLInputElement>, type: 'main' | 'instrumental' | 'vocal' | 'littleVocal') => {
+  const handleAudioChange = async (e: React.ChangeEvent<HTMLInputElement>, type: 'main' | 'narration') => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      if (!file.type.startsWith('audio/')) {
-        setError('Please upload a valid audio file (MP3, WAV)');
+      if (!file.type.startsWith('audio/') && !file.type.startsWith('video/')) {
+        setError('Please upload a valid audio or video file');
         return;
       }
 
@@ -164,14 +130,8 @@ export const useUploadFormHandlers = (
         case 'main':
           setMainAudioFile(file);
           break;
-        case 'instrumental':
-          setInstrumentalFile(file);
-          break;
-        case 'vocal':
-          setVocalFile(file);
-          break;
-        case 'littleVocal':
-          setLittleVocalFile(file);
+        case 'narration':
+          setNarrationFile(file);
           break;
       }
 
@@ -184,13 +144,32 @@ export const useUploadFormHandlers = (
   const handleLyricsChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
+
+      // Check if it's a valid file type
+      if (!file.name.endsWith('.json') && !file.name.endsWith('.srt')) {
+        setError('Please upload a valid JSON or SRT file');
+        return;
+      }
+
       setLyricsFile(file);
 
       try {
         const text = await file.text();
-        const parsedLyrics = JSON.parse(text);
-        if (!Array.isArray(parsedLyrics)) {
-          throw new Error('Lyrics must be an array');
+        let parsedLyrics: LyricEntry[] = [];
+
+        // Check if it's an SRT file
+        if (file.name.endsWith('.srt') || isSRTContent(text)) {
+          parsedLyrics = parseSRT(text);
+          if (parsedLyrics.length === 0) {
+            throw new Error('No valid subtitles found in SRT file');
+          }
+        } else {
+          // Assume it's JSON
+          const jsonData = JSON.parse(text);
+          if (!Array.isArray(jsonData)) {
+            throw new Error('Subtitles must be an array');
+          }
+          parsedLyrics = jsonData;
         }
 
         setLyrics(parsedLyrics);
@@ -198,16 +177,13 @@ export const useUploadFormHandlers = (
         onFilesChange(
           {
             main: mainAudioFile,
-            instrumental: instrumentalFile,
-            vocal: vocalFile,
-            littleVocal: littleVocalFile
+            narration: narrationFile
           },
           parsedLyrics,
-          albumArtFile,
-          backgroundFiles,
+          backgroundFile,
           {
-            artist,
-            songTitle,
+            title,
+            description,
             videoType,
             lyricsLineThreshold: 41,
             metadataPosition: -155,
@@ -216,16 +192,14 @@ export const useUploadFormHandlers = (
           file
         );
       } catch (err) {
-        setError(`Invalid lyrics file: ${err instanceof Error ? err.message : 'Unknown error'}`);
+        setError(`Invalid subtitles file: ${err instanceof Error ? err.message : 'Unknown error'}`);
         setLyrics(null);
       }
     }
   };
 
   const handleImageChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    type: 'albumArt' | 'background',
-    videoType?: VideoMetadata['videoType']
+    e: React.ChangeEvent<HTMLInputElement>
   ) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
@@ -234,13 +208,7 @@ export const useUploadFormHandlers = (
         return;
       }
 
-      if (type === 'albumArt') {
-        setAlbumArtFile(file);
-      } else if (videoType) {
-        setBackgroundFiles(prev => ({ ...prev, [videoType]: file }));
-      } else {
-        setBackgroundFiles(prev => ({ ...prev, 'Lyrics Video': file }));
-      }
+      setBackgroundFile(file);
       updateFiles();
       setError(null);
     }
@@ -265,8 +233,7 @@ export const useUploadFormHandlers = (
 
   const handleDrop = async (
     e: React.DragEvent,
-    type: 'main' | 'lyrics' | 'albumArt' | 'background' | 'instrumental' | 'vocal' | 'littleVocal',
-    videoType: VideoMetadata['videoType'] = 'Lyrics Video'
+    type: 'main' | 'narration' | 'lyrics' | 'background'
   ) => {
     e.preventDefault();
     e.stopPropagation();
@@ -277,91 +244,77 @@ export const useUploadFormHandlers = (
 
       switch (type) {
         case 'main':
-          if (!file.type.startsWith('audio/')) {
-            setError('Please upload a valid audio file');
+          if (!file.type.startsWith('audio/') && !file.type.startsWith('video/')) {
+            setError('Please upload a valid audio or video file');
             return;
           }
           setMainAudioFile(file);
           await analyzeAudioFile(file);
           break;
-        case 'instrumental':
+        case 'narration':
           if (!file.type.startsWith('audio/')) {
             setError('Please upload a valid audio file');
             return;
           }
-          setInstrumentalFile(file);
-          await analyzeAudioFile(file);
-          break;
-        case 'vocal':
-          if (!file.type.startsWith('audio/')) {
-            setError('Please upload a valid audio file');
-            return;
-          }
-          setVocalFile(file);
-          await analyzeAudioFile(file);
-          break;
-        case 'littleVocal':
-          if (!file.type.startsWith('audio/')) {
-            setError('Please upload a valid audio file');
-            return;
-          }
-          setLittleVocalFile(file);
+          setNarrationFile(file);
           await analyzeAudioFile(file);
           break;
         case 'lyrics':
-          if (!file.name.endsWith('.json')) {
-            setError('Please upload a valid JSON file');
+          if (!file.name.endsWith('.json') && !file.name.endsWith('.srt')) {
+            setError('Please upload a valid JSON or SRT file');
             return;
           }
           setLyricsFile(file);
           try {
             const text = await file.text();
-            const parsedLyrics = JSON.parse(text);
-            if (Array.isArray(parsedLyrics)) {
-              setLyrics(parsedLyrics);
-              onFilesChange(
-                {
-                  main: mainAudioFile,
-                  instrumental: instrumentalFile,
-                  vocal: vocalFile,
-                  littleVocal: littleVocalFile
-                },
-                parsedLyrics,
-                albumArtFile,
-                backgroundFiles,
-                {
-                  artist,
-                  songTitle,
-                  videoType,
-                  lyricsLineThreshold: 41,
-                  metadataPosition: -155,
-                  metadataWidth: 800
-                },
-                file
-              );
-              setError(null);
+            let parsedLyrics: LyricEntry[] = [];
+
+            // Check if it's an SRT file
+            if (file.name.endsWith('.srt') || isSRTContent(text)) {
+              parsedLyrics = parseSRT(text);
+              if (parsedLyrics.length === 0) {
+                throw new Error('No valid subtitles found in SRT file');
+              }
             } else {
-              throw new Error('Invalid lyrics format');
+              // Assume it's JSON
+              const jsonData = JSON.parse(text);
+              if (!Array.isArray(jsonData)) {
+                throw new Error('Subtitles must be an array');
+              }
+              parsedLyrics = jsonData;
             }
+
+            setLyrics(parsedLyrics);
+            onFilesChange(
+              {
+                main: mainAudioFile,
+                narration: narrationFile
+              },
+              parsedLyrics,
+              backgroundFile,
+              {
+                title,
+                description,
+                videoType,
+                lyricsLineThreshold: 41,
+                metadataPosition: -155,
+                metadataWidth: 800
+              },
+              file
+            );
+            setError(null);
           } catch (err) {
-            setError('Invalid lyrics file format');
+            setError('Invalid subtitles file format');
             setLyrics(null);
             return;
           }
           break;
-        case 'albumArt':
         case 'background':
           if (!file.type.startsWith('image/')) {
             setError('Please upload a valid image file');
             return;
           }
-          if (type === 'albumArt') {
-            setAlbumArtFile(file);
-          } else if (videoType) {
-            setBackgroundFiles(prev => ({ ...prev, [videoType]: file }));
-          } else {
-            setBackgroundFiles(prev => ({ ...prev, 'Lyrics Video': file }));
-          }
+          setBackgroundFile(file);
           updateFiles();
           break;
       }
@@ -381,47 +334,45 @@ export const useUploadFormHandlers = (
     setError(null);
 
     let detectedMain: File | null = null;
-    let detectedInstrumental: File | null = null;
-    let detectedVocal: File | null = null;
-    let detectedLittleVocal: File | null = null;
+    let detectedNarration: File | null = null;
     let detectedLyrics: File | null = null;
-    let detectedAlbumArt: File | null = null;
-    const detectedBackgrounds: { [key: string]: File } = {};
-    let backgroundImages: File[] = [];
+    let detectedBackground: File | null = null;
+    let parsedLyrics: LyricEntry[] | null = null;
 
     for (const file of files) {
-      if (file.name.endsWith('.json')) {
+      // Check for subtitle files (JSON or SRT)
+      if (file.name.endsWith('.json') || file.name.endsWith('.srt')) {
         try {
           const text = await file.text();
-          const parsedLyrics = JSON.parse(text);
-          if (Array.isArray(parsedLyrics)) {
-            setLyrics(parsedLyrics);
-            detectedLyrics = file;
-            continue;
+
+          // Check if it's an SRT file
+          if (file.name.endsWith('.srt') || isSRTContent(text)) {
+            const srtLyrics = parseSRT(text);
+            if (srtLyrics.length > 0) {
+              parsedLyrics = srtLyrics;
+              detectedLyrics = file;
+              continue;
+            }
+          } else {
+            // Assume it's JSON
+            const jsonData = JSON.parse(text);
+            if (Array.isArray(jsonData)) {
+              parsedLyrics = jsonData;
+              detectedLyrics = file;
+              continue;
+            }
           }
         } catch (err) {
-          setError('Invalid lyrics JSON file');
-          return;
+          // Just skip invalid files in bulk upload
+          console.error('Error parsing subtitle file:', err);
         }
       }
 
-      if (file.type.startsWith('audio/')) {
+      // Check for audio/video files
+      if (file.type.startsWith('audio/') || file.type.startsWith('video/')) {
         const nameLower = file.name.toLowerCase();
-        if (nameLower.includes('remix')) {
-          detectedLittleVocal = file;
-          await analyzeAudioFile(file);
-        } else if (nameLower.includes('[music+vocals]')) {
-          detectedLittleVocal = file;
-          await analyzeAudioFile(file);
-        } else if (nameLower.includes('music') || nameLower.includes('instrumental')) {
-          detectedInstrumental = file;
-          await analyzeAudioFile(file);
-        } else if (nameLower.includes('vocal') || nameLower.includes('voc')) {
-          if (nameLower.includes('little') || nameLower.includes('low')) {
-            detectedLittleVocal = file;
-          } else {
-            detectedVocal = file;
-          }
+        if (nameLower.includes('narration') || nameLower.includes('voice')) {
+          detectedNarration = file;
           await analyzeAudioFile(file);
         } else {
           detectedMain = file;
@@ -430,55 +381,27 @@ export const useUploadFormHandlers = (
         continue;
       }
 
+      // Check for image files
       if (file.type.startsWith('image/')) {
-        const img = new Image();
-        const imageUrl = URL.createObjectURL(file);
-
-        await new Promise<void>((resolve) => {
-          img.onload = () => {
-            URL.revokeObjectURL(imageUrl);
-            const isSquare = Math.abs(img.width - img.height) <= 2;
-            if (isSquare) {
-              detectedAlbumArt = file;
-            } else {
-              backgroundImages.push(file);
-            }
-            resolve();
-          };
-          img.src = imageUrl;
-        });
+        detectedBackground = file;
       }
     }
 
-    const videoTypes: VideoMetadata['videoType'][] = [
-      'Lyrics Video', 'Vocal Only', 'Instrumental Only', 'Little Vocal'
-    ];
-
-    backgroundImages.forEach((file, index) => {
-      if (index < videoTypes.length) {
-        detectedBackgrounds[videoTypes[index]] = file;
-      }
-    });
-
     if (detectedMain) setMainAudioFile(detectedMain);
-    if (detectedInstrumental) setInstrumentalFile(detectedInstrumental);
-    if (detectedVocal) setVocalFile(detectedVocal);
-    if (detectedLittleVocal) setLittleVocalFile(detectedLittleVocal);
+    if (detectedNarration) setNarrationFile(detectedNarration);
     if (detectedLyrics) setLyricsFile(detectedLyrics);
-    if (detectedAlbumArt) setAlbumArtFile(detectedAlbumArt);
-    setBackgroundFiles(detectedBackgrounds);
+    if (parsedLyrics) setLyrics(parsedLyrics);
+    if (detectedBackground) setBackgroundFile(detectedBackground);
 
     setTimeout(() => {
       const audioFiles: AudioFiles = {
         main: detectedMain,
-        instrumental: detectedInstrumental,
-        vocal: detectedVocal,
-        littleVocal: detectedLittleVocal
+        narration: detectedNarration
       };
 
       const metadata: VideoMetadata = {
-        artist,
-        songTitle,
+        title,
+        description,
         videoType,
         lyricsLineThreshold: 41,
         metadataPosition: -155,
@@ -487,85 +410,56 @@ export const useUploadFormHandlers = (
         frameRate: initialValues?.metadata?.frameRate || 60
       };
 
-      onFilesChange(audioFiles, lyrics, detectedAlbumArt, detectedBackgrounds, metadata, detectedLyrics);
+      onFilesChange(audioFiles, parsedLyrics, detectedBackground, metadata, detectedLyrics);
     }, 0);
   };
 
   const resetForm = () => {
     setMainAudioFile(null);
-    setInstrumentalFile(null);
-    setVocalFile(null);
-    setLittleVocalFile(null);
+    setNarrationFile(null);
     setLyricsFile(null);
-    setAlbumArtFile(null);
-    setBackgroundFiles({});
+    setBackgroundFile(null);
     setLyrics(null);
     setError(null);
     setVideoPath(null);
-    setArtist('');
-    setSongTitle('');
-    setVideoType('Lyrics Video');
+    setTitle('');
+    setDescription('');
     onFilesChange(
-      { main: null, instrumental: null, vocal: null, littleVocal: null },
+      { main: null, narration: null },
       null,
       null,
-      {},
-      { artist: '', songTitle: '', videoType: 'Lyrics Video', lyricsLineThreshold: 41, metadataPosition: -155, metadataWidth: 800 },
+      { title: '', description: '', videoType: 'Subtitled Video', lyricsLineThreshold: 41, metadataPosition: -155, metadataWidth: 800 },
       null
     );
 
     if (mainAudioInputRef.current) mainAudioInputRef.current.value = '';
+    if (narrationInputRef.current) narrationInputRef.current.value = '';
     if (lyricsInputRef.current) lyricsInputRef.current.value = '';
-    if (albumArtInputRef.current) albumArtInputRef.current.value = '';
     if (backgroundInputRef.current) backgroundInputRef.current.value = '';
-    if (instrumentalInputRef.current) instrumentalInputRef.current.value = '';
-    if (vocalInputRef.current) vocalInputRef.current.value = '';
-    if (littleVocalInputRef.current) littleVocalInputRef.current.value = '';
-    if (backgroundLyricsInputRef.current) backgroundLyricsInputRef.current.value = '';
-    if (backgroundVocalInputRef.current) backgroundVocalInputRef.current.value = '';
-    if (backgroundInstrumentalInputRef.current) backgroundInstrumentalInputRef.current.value = '';
-    if (backgroundLittleVocalInputRef.current) backgroundLittleVocalInputRef.current.value = '';
   };
 
-  const handleBackgroundClick = (type: string) => {
-    const ref = {
-      'Lyrics Video': backgroundLyricsInputRef,
-      'Vocal Only': backgroundVocalInputRef,
-      'Instrumental Only': backgroundInstrumentalInputRef,
-      'Little Vocal': backgroundLittleVocalInputRef
-    }[type];
-
-    if (ref && ref.current) {
-      ref.current.click();
+  const handleBackgroundClick = () => {
+    if (backgroundInputRef.current) {
+      backgroundInputRef.current.click();
     }
   };
 
   return {
     mainAudioFile,
-    instrumentalFile,
-    vocalFile,
-    littleVocalFile,
+    narrationFile,
     lyrics,
     lyricsFile,
-    albumArtFile,
-    backgroundFiles,
+    backgroundFile,
     error,
     isDragging,
     videoPath,
-    artist,
-    songTitle,
+    title,
+    description,
     videoType,
     mainAudioInputRef,
+    narrationInputRef,
     lyricsInputRef,
-    albumArtInputRef,
     backgroundInputRef,
-    instrumentalInputRef,
-    vocalInputRef,
-    littleVocalInputRef,
-    backgroundLyricsInputRef,
-    backgroundVocalInputRef,
-    backgroundInstrumentalInputRef,
-    backgroundLittleVocalInputRef,
     handleMetadataChange,
     handleAudioChange,
     handleLyricsChange,

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { 
-  
+import {
   CompactFileGrid,
   CompactFilePreview,
   FileIcon,
@@ -9,35 +8,29 @@ import {
   CompactFileTag,
   PreviewImage
 } from './UploadForm.styles';
-import { 
-  BsMusicNoteBeamed, 
-  BsFileEarmarkText 
+import {
+  BsMusicNoteBeamed,
+  BsFileEarmarkText
 } from 'react-icons/bs';
-import { 
-  MdOutlineLibraryMusic 
+import {
+  MdVideoCameraBack
 } from 'react-icons/md';
-import { 
-  HiOutlineMicrophone 
+import {
+  HiOutlineMicrophone
 } from 'react-icons/hi';
 
 interface FilePreviewSectionProps {
   mainAudioFile: File | null;
-  instrumentalFile: File | null;
-  vocalFile: File | null;
-  littleVocalFile: File | null;
+  narrationFile: File | null;
   lyricsFile: File | null;
-  albumArtFile: File | null;
-  backgroundFiles: Record<string, File | null>;
+  backgroundFile: File | null;
 }
 
 const FilePreviewSection: React.FC<FilePreviewSectionProps> = ({
   mainAudioFile,
-  instrumentalFile,
-  vocalFile,
-  littleVocalFile,
+  narrationFile,
   lyricsFile,
-  albumArtFile,
-  backgroundFiles
+  backgroundFile
 }) => {
   const [fileStatus, setFileStatus] = useState<Record<string, boolean>>({});
 
@@ -45,110 +38,68 @@ const FilePreviewSection: React.FC<FilePreviewSectionProps> = ({
     const checkFiles = async () => {
       const status = {
         main: !!mainAudioFile,
-        instrumental: !!instrumentalFile,
-        vocal: !!vocalFile,
-        littleVocal: !!littleVocalFile
+        narration: !!narrationFile
       };
       setFileStatus(status);
     };
     checkFiles();
-  }, [mainAudioFile, instrumentalFile, vocalFile, littleVocalFile]);
+  }, [mainAudioFile, narrationFile]);
 
   return (
     <CompactFileGrid>
       {mainAudioFile && (
         <CompactFilePreview>
-          <FileIcon type="Main">
-            <BsMusicNoteBeamed />
+          <FileIcon type="Video">
+            <MdVideoCameraBack />
           </FileIcon>
           <FileName>
             <span>{mainAudioFile.name}</span>
-            <CompactFileTag>Main</CompactFileTag>
+            <CompactFileTag>Video</CompactFileTag>
             {fileStatus.main && <CompactFileTag status="success">✓</CompactFileTag>}
             <FileSize>{formatFileSize(mainAudioFile.size)}</FileSize>
           </FileName>
         </CompactFilePreview>
       )}
-      {instrumentalFile && (
+      {narrationFile && (
         <CompactFilePreview>
-          <FileIcon type="Music">
-            <MdOutlineLibraryMusic />
-          </FileIcon>
-          <FileName>
-            <span>{instrumentalFile.name}</span>
-            <CompactFileTag>Music</CompactFileTag>
-            {fileStatus.instrumental && <CompactFileTag status="success">✓</CompactFileTag>}
-            <FileSize>{formatFileSize(instrumentalFile.size)}</FileSize>
-          </FileName>
-        </CompactFilePreview>
-      )}
-      {vocalFile && (
-        <CompactFilePreview>
-          <FileIcon type="Vocals">
+          <FileIcon type="Voice">
             <HiOutlineMicrophone />
           </FileIcon>
           <FileName>
-            <span>{vocalFile.name}</span>
-            <CompactFileTag>Vocals</CompactFileTag>
-            {fileStatus.vocal && <CompactFileTag status="success">✓</CompactFileTag>}
-            <FileSize>{formatFileSize(vocalFile.size)}</FileSize>
-          </FileName>
-        </CompactFilePreview>
-      )}
-      {littleVocalFile && (
-        <CompactFilePreview>
-          <FileIcon type="Little">
-            <HiOutlineMicrophone />
-          </FileIcon>
-          <FileName>
-            <span>{littleVocalFile.name}</span>
-            <CompactFileTag>Little</CompactFileTag>
-            {fileStatus.littleVocal && <CompactFileTag status="success">✓</CompactFileTag>}
-            <FileSize>{formatFileSize(littleVocalFile.size)}</FileSize>
+            <span>{narrationFile.name}</span>
+            <CompactFileTag>Voice</CompactFileTag>
+            {fileStatus.narration && <CompactFileTag status="success">✓</CompactFileTag>}
+            <FileSize>{formatFileSize(narrationFile.size)}</FileSize>
           </FileName>
         </CompactFilePreview>
       )}
       {lyricsFile && (
         <CompactFilePreview>
-          <FileIcon type="JSON">
+          <FileIcon type="SRT">
             <BsFileEarmarkText />
           </FileIcon>
           <FileName>
             <span>{lyricsFile.name}</span>
-            <CompactFileTag>JSON</CompactFileTag>
+            <CompactFileTag>{lyricsFile.name.endsWith('.srt') ? 'SRT' : 'JSON'}</CompactFileTag>
             <CompactFileTag status="success">✓</CompactFileTag>
             <FileSize>{formatFileSize(lyricsFile.size)}</FileSize>
           </FileName>
         </CompactFilePreview>
       )}
-      {albumArtFile && (
+      {backgroundFile && (
         <CompactFilePreview>
-          <PreviewImage 
-            src={URL.createObjectURL(albumArtFile)} 
-            alt="Album Art Preview" 
+          <PreviewImage
+            src={URL.createObjectURL(backgroundFile)}
+            alt="Background Preview"
           />
           <FileName>
-            <span>{albumArtFile.name}</span>
-            <CompactFileTag>Square</CompactFileTag>
+            <span>{backgroundFile.name}</span>
+            <CompactFileTag>BG</CompactFileTag>
             <CompactFileTag status="success">✓</CompactFileTag>
-            <FileSize>{formatFileSize(albumArtFile.size)}</FileSize>
+            <FileSize>{formatFileSize(backgroundFile.size)}</FileSize>
           </FileName>
         </CompactFilePreview>
       )}
-      {Object.entries(backgroundFiles).map(([type, file]) => (
-        <CompactFilePreview key={type}>
-          <PreviewImage 
-            src={URL.createObjectURL(file!)} 
-            alt={`${type} Background`} 
-          />
-          <FileName>
-            <span>{file?.name}</span>
-            <CompactFileTag>BG</CompactFileTag>
-            <CompactFileTag status="success">✓</CompactFileTag>
-            <FileSize>{file ? formatFileSize(file.size) : ''}</FileSize>
-          </FileName>
-        </CompactFilePreview>
-      ))}
     </CompactFileGrid>
   );
 };

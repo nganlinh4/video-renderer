@@ -12,16 +12,12 @@ export interface RenderProgress {
 }
 
 export interface RenderOptions {
-  albumArtUrl?: string;
   backgroundImageUrl?: string;
-  backgroundImagesMap?: { [key: string]: string }; // Add backgroundImagesMap property
-  instrumentalUrl?: string;
-  vocalUrl?: string;
-  littleVocalUrl?: string;
+  narrationUrl?: string;
   metadata?: {
-    artist: string;
-    songTitle: string;
-    videoType: 'Lyrics Video' | 'Vocal Only' | 'Instrumental Only' | 'Little Vocal';
+    title: string;
+    description: string;
+    videoType: 'Subtitled Video';
     resolution?: '1080p' | '2K';
     frameRate?: 30 | 60;
     lyricsLineThreshold?: number;
@@ -33,23 +29,13 @@ export interface RenderOptions {
 export class RemotionService {
   // Map video types to composition IDs
   private getCompositionId(videoType: string): string {
-    switch (videoType) {
-      case 'Vocal Only':
-        return 'vocal-only';
-      case 'Instrumental Only':
-        return 'instrumental-only';
-      case 'Little Vocal':
-        return 'little-vocal';
-      case 'Lyrics Video':
-      default:
-        return 'lyrics-video';
-    }
+    return 'subtitled-video';
   }
 
   private defaultMetadata = {
-    artist: 'Unknown Artist',
-    songTitle: 'Unknown Song',
-    videoType: 'Lyrics Video' as const,
+    title: 'Untitled Video',
+    description: 'No description',
+    videoType: 'Subtitled Video' as const,
     resolution: '2K' as const,
     frameRate: 60 as const,
     lyricsLineThreshold: 41,
@@ -74,7 +60,7 @@ export class RemotionService {
     return url;
   }
 
-  // New verification function to check that correct files are being used
+  // Verification function to check that correct files are being used
   private verifyRenderAssets(
     videoType: string,
     audioUrl: string,
@@ -84,49 +70,21 @@ export class RemotionService {
   ): void {
     console.log(`\n=== Verifying assets for ${videoType} render ===`);
 
-    // Verify audio files based on video type
-    switch (videoType) {
-      case 'Vocal Only':
-        if (!additionalAudioUrls.vocalUrl) {
-          console.warn('⚠️ Warning: Vocal Only video without a vocal audio file. Using main audio as fallback.');
-        } else {
-          console.log('✓ Using vocal track for Vocal Only video:', additionalAudioUrls.vocalUrl);
-        }
-        break;
+    // Verify audio files
+    console.log('✓ Using main audio track:', audioUrl);
 
-      case 'Instrumental Only':
-        if (!additionalAudioUrls.instrumentalUrl) {
-          console.warn('⚠️ Warning: Instrumental Only video without an instrumental audio file. Using main audio as fallback.');
-        } else {
-          console.log('✓ Using instrumental track for Instrumental Only video:', additionalAudioUrls.instrumentalUrl);
-        }
-        break;
-
-      case 'Little Vocal':
-        if (additionalAudioUrls.littleVocalUrl) {
-          console.log('✓ Using pre-mixed little vocal track:', additionalAudioUrls.littleVocalUrl);
-        } else if (additionalAudioUrls.instrumentalUrl && additionalAudioUrls.vocalUrl) {
-          console.log('✓ Using instrumental and vocal tracks for Little Vocal mix:');
-          console.log('  - Instrumental:', additionalAudioUrls.instrumentalUrl);
-          console.log('  - Vocal:', additionalAudioUrls.vocalUrl);
-        } else {
-          console.warn('⚠️ Warning: Little Vocal video without proper audio files. Using main audio as fallback.');
-        }
-        break;
-
-      default: // Lyrics Video
-        console.log('✓ Using main audio track for Lyrics Video:', audioUrl);
-        break;
+    // Check for narration audio
+    if (additionalAudioUrls.narrationUrl) {
+      console.log('✓ Using narration audio track:', additionalAudioUrls.narrationUrl);
+    } else {
+      console.log('ℹ️ No narration audio provided');
     }
 
     // Verify background image
-    const backgroundForThisType = backgroundImagesMapUrls[videoType];
-    if (backgroundForThisType) {
-      console.log('✓ Using specific background for this video type:', backgroundForThisType);
-    } else if (specificBackgroundUrl) {
-      console.log('✓ Using default background:', specificBackgroundUrl);
+    if (specificBackgroundUrl) {
+      console.log('✓ Using background image:', specificBackgroundUrl);
     } else {
-      console.log('ℹ️ No background image provided for this video type. Using solid color background.');
+      console.log('ℹ️ No background image provided. Using solid color background.');
     }
 
     console.log('=== Verification complete ===\n');
@@ -146,7 +104,7 @@ export class RemotionService {
 
       // Upload all files first
       const audioPromises = [this.uploadFile(audioFile, 'audio')];
-      const audioKeysToProcess = ['instrumentalUrl', 'vocalUrl', 'littleVocalUrl'];
+      const audioKeysToProcess = ['narrationUrl'];
 
       // Add additional upload promises for audio files if they exist
       const additionalAudioUrls: Record<string, string | undefined> = {};
@@ -166,16 +124,8 @@ export class RemotionService {
         }
       }
 
-      // Process image uploads as before
+      // Process image uploads
       const imagePromises = [
-        options.albumArtUrl && options.albumArtUrl.startsWith('blob:')
-          ? this.uploadFile(
-              await fetch(options.albumArtUrl)
-                .then(r => r.blob())
-                .then(b => new File([b], 'album.jpg')),
-              'image'
-            )
-          : Promise.resolve(undefined),
         options.backgroundImageUrl && options.backgroundImageUrl.startsWith('blob:')
           ? this.uploadFile(
               await fetch(options.backgroundImageUrl)
@@ -186,25 +136,8 @@ export class RemotionService {
           : Promise.resolve(undefined)
       ];
 
-      // Process backgroundImagesMap if provided
+      // No need for backgroundImagesMap in subtitled videos
       const backgroundImagesMapUrls: { [key: string]: string } = {};
-      if (options.backgroundImagesMap) {
-        for (const [videoType, url] of Object.entries(options.backgroundImagesMap)) {
-          if (url && url.startsWith('blob:')) {
-            try {
-              const uploadedUrl = await this.uploadFile(
-                await fetch(url)
-                  .then(r => r.blob())
-                  .then(b => new File([b], `background_${videoType.replace(/\s+/g, '_')}.jpg`)),
-                'image'
-              );
-              backgroundImagesMapUrls[videoType] = uploadedUrl;
-            } catch (error) {
-              console.error(`Failed to upload background image for ${videoType}:`, error);
-            }
-          }
-        }
-      }
 
       // Wait for all uploads to complete
       const [audioUrl, ...imageUrls] = await Promise.all([
@@ -215,7 +148,7 @@ export class RemotionService {
         ...imageResults // Image URLs
       ]);
 
-      const [albumArtUrl, backgroundUrl] = imageUrls;
+      const [backgroundUrl] = imageUrls;
 
       // Ensure audioUrl is defined before using it
       if (!audioUrl) {
@@ -231,18 +164,7 @@ export class RemotionService {
         backgroundUrl
       );
 
-      // Pre-analyze the correct audio file based on video type to ensure visualization works correctly
-      const analysisUrl = getAnalysisUrl(
-        metadata.videoType,
-        audioUrl,
-        additionalAudioUrls.vocalUrl,
-        additionalAudioUrls.instrumentalUrl,
-        additionalAudioUrls.littleVocalUrl
-      );
-
-      // Perform analysis before rendering to ensure data is cached
-      console.log(`Pre-analyzing audio for ${metadata.videoType} using URL: ${analysisUrl}`);
-      await analyzeAudio(analysisUrl);
+      // No audio analysis needed for subtitled videos
 
       const frameRate = metadata.frameRate || this.defaultMetadata.frameRate;
 
@@ -268,13 +190,9 @@ export class RemotionService {
           audioFile: audioUrl.split('/').pop(),
           lyrics,
           durationInSeconds,
-          albumArtUrl,
           backgroundImageUrl: backgroundUrl,
-          backgroundImagesMap: Object.keys(backgroundImagesMapUrls).length > 0 ? backgroundImagesMapUrls : undefined,
           metadata,
-          instrumentalUrl: additionalAudioUrls.instrumentalUrl,
-          vocalUrl: additionalAudioUrls.vocalUrl,
-          littleVocalUrl: additionalAudioUrls.littleVocalUrl
+          narrationUrl: additionalAudioUrls.narrationUrl
         }),
       });
 

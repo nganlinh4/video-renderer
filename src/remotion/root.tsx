@@ -1,22 +1,22 @@
 import React from 'react';
 import { Composition } from 'remotion';
-import { LyricsVideoContent } from './Composition';
+import SubtitledVideoWrapper from './Composition';
 import { Props, VideoMetadata, LyricEntry } from '../types';
 
 // Sample data for preview mode
 const sampleLyrics: LyricEntry[] = [
   { start: 0, end: 2, text: "Welcome to" },
-  { start: 2, end: 4, text: "Lyrics Video Maker" },
+  { start: 2, end: 4, text: "Subtitled Video Maker" },
   { start: 4, end: 6, text: "Preview Mode" }
 ];
 
 const defaultMetadata: VideoMetadata = {
-  artist: 'Preview Artist',
-  songTitle: 'Preview Song',
-  videoType: 'Lyrics Video',
-  lyricsLineThreshold: 41,
-  metadataPosition: -155,
-  metadataWidth: 450,
+  title: 'Preview Video',
+  description: 'A sample subtitled video',
+  videoType: 'Subtitled Video',
+  lyricsLineThreshold: 41, // Kept for compatibility
+  metadataPosition: -155, // Kept for compatibility
+  metadataWidth: 450, // Kept for compatibility
   resolution: '2K',
   frameRate: 60
 };
@@ -29,14 +29,11 @@ const VideoComponentWrapper: React.FC<Record<string, unknown>> = (props) => {
     lyrics: (props.lyrics as LyricEntry[]) || sampleLyrics,
     durationInSeconds: (props.durationInSeconds as number) || 6,
     metadata: (props.metadata as VideoMetadata) || defaultMetadata,
-    albumArtUrl: props.albumArtUrl as string | undefined,
     backgroundImageUrl: props.backgroundImageUrl as string | undefined,
-    instrumentalUrl: props.instrumentalUrl as string | undefined,
-    vocalUrl: props.vocalUrl as string | undefined,
-    littleVocalUrl: props.littleVocalUrl as string | undefined
+    narrationUrl: props.narrationUrl as string | undefined
   };
 
-  return <LyricsVideoContent {...safeProps} />;
+  return <SubtitledVideoWrapper {...safeProps} />;
 };
 
 export const RemotionRoot: React.FC = () => {
@@ -53,43 +50,13 @@ export const RemotionRoot: React.FC = () => {
   return (
     <>
       <Composition
-        id="lyrics-video"
+        id="subtitled-video"
         {...commonProps}
         defaultProps={{
           audioUrl: '',
           lyrics: sampleLyrics,
           durationInSeconds: 6,
-          metadata: { ...defaultMetadata, videoType: 'Lyrics Video' }
-        }}
-      />
-      <Composition
-        id="vocal-only"
-        {...commonProps}
-        defaultProps={{
-          audioUrl: '',
-          lyrics: sampleLyrics,
-          durationInSeconds: 6,
-          metadata: { ...defaultMetadata, videoType: 'Vocal Only' }
-        }}
-      />
-      <Composition
-        id="instrumental-only"
-        {...commonProps}
-        defaultProps={{
-          audioUrl: '',
-          lyrics: sampleLyrics,
-          durationInSeconds: 6,
-          metadata: { ...defaultMetadata, videoType: 'Instrumental Only' }
-        }}
-      />
-      <Composition
-        id="little-vocal"
-        {...commonProps}
-        defaultProps={{
-          audioUrl: '',
-          lyrics: sampleLyrics,
-          durationInSeconds: 6,
-          metadata: { ...defaultMetadata, videoType: 'Little Vocal' }
+          metadata: { ...defaultMetadata, videoType: 'Subtitled Video' }
         }}
       />
     </>

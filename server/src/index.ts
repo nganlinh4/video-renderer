@@ -175,26 +175,27 @@ app.post('/render', async (req, res) => {
 
   try {
     const {
-      compositionId = 'lyrics-video', // Get compositionId from request, fallback to default
+      compositionId = 'subtitled-video', // Get compositionId from request, fallback to default
       audioFile,
       lyrics,
       durationInSeconds,
-      albumArtUrl,
       backgroundImageUrl,
-      backgroundImagesMap = {}, // Add support for background images map
+      albumArtUrl,
+      instrumentalUrl,
+      vocalUrl,
+      littleVocalUrl,
+      backgroundImagesMap = {},
       metadata = {
-        artist: 'Unknown Artist',
-        songTitle: 'Unknown Song',
-        videoType: 'Lyrics Video',
+        title: 'Untitled Video',
+        description: 'No description',
+        videoType: 'Subtitled Video',
         resolution: '2K',
         frameRate: 60,
         lyricsLineThreshold: 41,
         metadataPosition: -155,
         metadataWidth: 450
       },
-      instrumentalUrl,
-      vocalUrl,
-      littleVocalUrl
+      narrationUrl
     } = req.body;
 
     if (!audioFile || !lyrics || !durationInSeconds) {
@@ -219,15 +220,22 @@ app.post('/render', async (req, res) => {
     const audioUrl = `http://localhost:${port}/uploads/${audioFile}`;
 
     // Perform server-side verification before rendering
-    verifyServerAssets(
-      metadata.videoType,
-      audioUrl,
-      instrumentalUrl,
-      vocalUrl,
-      littleVocalUrl,
-      backgroundImagesMap,
-      backgroundImageUrl
-    );
+    console.log(`\n=== Verifying assets for ${metadata.videoType} render ===`);
+    console.log(`Main Audio: ${audioUrl}`);
+
+    if (narrationUrl) {
+      console.log(`Narration Audio: ${narrationUrl}`);
+    } else {
+      console.log('No narration audio provided');
+    }
+
+    if (backgroundImageUrl) {
+      console.log(`Background Image: ${backgroundImageUrl}`);
+    } else {
+      console.log('No background image provided');
+    }
+
+    console.log('=== Verification complete ===\n');
 
     // Add a small delay after verification to ensure resources are ready
     await new Promise(resolve => setTimeout(resolve, 1000));
@@ -314,13 +322,9 @@ app.post('/render', async (req, res) => {
           audioUrl: audioUrl,
           lyrics,
           durationInSeconds,
-          albumArtUrl,
           backgroundImageUrl,
-          backgroundImagesMap, // Include backgroundImagesMap here
           metadata,
-          instrumentalUrl,
-          vocalUrl,
-          littleVocalUrl
+          narrationUrl
         },
         chromiumOptions: {
           disableWebSecurity: true,
@@ -359,13 +363,9 @@ app.post('/render', async (req, res) => {
                 audioUrl: audioUrl,
                 lyrics,
                 durationInSeconds,
-                albumArtUrl,
                 backgroundImageUrl,
-                backgroundImagesMap,
                 metadata,
-                instrumentalUrl,
-                vocalUrl,
-                littleVocalUrl
+                narrationUrl
               },
               chromiumOptions: {
                 disableWebSecurity: true,

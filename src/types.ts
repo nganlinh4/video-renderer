@@ -8,45 +8,38 @@ export type Resolution = '1080p' | '2K';
 export type FrameRate = 30 | 60;
 
 export interface VideoMetadata {
-  artist: string;
-  songTitle: string;
-  videoType: 'Lyrics Video' | 'Vocal Only' | 'Instrumental Only' | 'Little Vocal';
-  lyricsLineThreshold: number; // No longer optional
-  metadataPosition: number; // No longer optional
+  title: string;
+  description: string;
+  videoType: 'Subtitled Video';
+  lyricsLineThreshold: number; // Renamed but kept for compatibility
+  metadataPosition: number; // Kept for compatibility
   metadataWidth: number; // Width of the metadata container
   resolution: Resolution; // Video resolution (1080p or 2K)
   frameRate: FrameRate; // Frame rate (30 or 60 fps)
 }
 
 export interface AudioFiles {
-  main: File | null;
-  instrumental?: File | null;
-  vocal?: File | null;
-  littleVocal?: File | null; // Added new option for pre-mixed Little Vocal audio
+  main: File | null; // Original video audio
+  narration?: File | null; // Narration audio track
 }
 
 export interface Props {
-  audioUrl: string;
-  lyrics: LyricEntry[];
+  audioUrl: string; // Original video audio
+  narrationUrl?: string; // Narration audio
+  lyrics: LyricEntry[]; // Subtitles
   durationInSeconds: number;
-  albumArtUrl?: string;
-  backgroundImageUrl?: string;
-  backgroundImagesMap?: {
-    [key in VideoMetadata['videoType']]?: string;
-  };
+  backgroundImageUrl?: string; // Optional background image
   metadata: VideoMetadata;
-  instrumentalUrl?: string;
-  vocalUrl?: string;
-  littleVocalUrl?: string;
 }
 
 // Interface for components that can work with either a File or URL
 export interface AudioProps {
-  audioFile?: File;
+  audioFile?: File; // Original video audio
+  narrationFile?: File; // Narration audio
   audioUrl?: string;
+  narrationUrl?: string;
   lyrics: LyricEntry[];
   durationInSeconds: number;
-  albumArtUrl?: string;
   backgroundImageUrl?: string;
 }
 
