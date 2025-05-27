@@ -255,13 +255,7 @@ export const LyricsVideoContent: React.FC<Props> = ({
     return audioUrl ? [{ src: audioUrl, volume: 1 }] : [];
   }, [audioUrl]);
 
-  // Memoize metadata component - show title and description for subtitled videos
-  const MetadataDisplay = useMemo(() => (
-    <MetadataContainer>
-      <ArtistName>{metadata.title}</ArtistName>
-      <SongTitle>{metadata.description}</SongTitle>
-    </MetadataContainer>
-  ), [metadata.title, metadata.description]);
+  // No metadata display for subtitled videos
 
   // Move accentColor state up to parent component
   const [accentColor, setAccentColor] = useState<{ normal: number[], bright: number[] }>({
@@ -619,17 +613,7 @@ export const LyricsVideoContent: React.FC<Props> = ({
 
         {/* Content layer */}
         <div style={{ position: 'relative', width: '100%', height: '100%', zIndex: 2 }}>
-          {/* Centered Metadata above album art */}
-          <CenteredMetadataContainer>
-            <ArtistName>{metadata.title}</ArtistName>
-            <SongTitle
-              style={{
-                backgroundPosition: `${titleGradientPosition}% center`
-              }}
-            >
-              {metadata.description}
-            </SongTitle>
-          </CenteredMetadataContainer>
+          {/* No metadata display for subtitled videos */}
 
           {/* Album Cover with Video Type below it */}
           <AlbumCoverContainer>

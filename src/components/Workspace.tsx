@@ -142,7 +142,6 @@ const Workspace: React.FC<WorkspaceProps> = ({ tabId }) => {
   const handleFilesChange = async (
     newAudioFiles: AudioFiles,
     newLyrics: LyricEntry[] | null,
-    newBackgroundFile: File | null,
     newMetadata: VideoMetadata,
     newLyricsFile: File | null
   ) => {
@@ -170,17 +169,12 @@ const Workspace: React.FC<WorkspaceProps> = ({ tabId }) => {
       audioFiles: normalizedAudioFiles,
       lyrics: newLyrics,
       lyricsFile: newLyricsFile,
-      backgroundFiles: newBackgroundFile ? { 'Subtitled Video': newBackgroundFile } : {},
+      backgroundFiles: {},
       metadata: newMetadata,
       durationInSeconds: newDuration
     });
 
-    // Also update the tab name if title is provided
-    if (newMetadata.title) {
-      updateTabContent(tabId, {
-        name: newMetadata.title
-      });
-    }
+    // Tab name will remain as default since we removed title metadata
   };
 
   // Handle lyrics threshold change
@@ -283,7 +277,6 @@ const Workspace: React.FC<WorkspaceProps> = ({ tabId }) => {
               },
               lyrics,
               lyricsFile: workspaceData.lyricsFile,
-              backgroundFile: backgroundFiles['Subtitled Video'] || null,
               metadata
             }}
           />
@@ -298,7 +291,7 @@ const Workspace: React.FC<WorkspaceProps> = ({ tabId }) => {
             <PreviewGrid>
               <PreviewContainer>
                 <Player
-                  key={`${tabId}-${metadata.videoType}-${metadata.title}-${metadata.description}-${audioUrls.main}-${audioUrls.narration}-${JSON.stringify(backgroundUrls)}-${metadata.resolution}-${metadata.frameRate}`}
+                  key={`${tabId}-${metadata.videoType}-${audioUrls.main}-${audioUrls.narration}-${JSON.stringify(backgroundUrls)}-${metadata.resolution}-${metadata.frameRate}`}
                   component={SubtitledVideoContent}
                   durationInFrames={durationInFrames}
                   compositionWidth={metadata.resolution === '2K' ? 2560 : 1920}
@@ -325,7 +318,6 @@ const Workspace: React.FC<WorkspaceProps> = ({ tabId }) => {
                     audioFile={audioFiles.main}
                     lyrics={lyrics}
                     durationInSeconds={durationInSeconds}
-                    backgroundFile={backgroundFiles[metadata.videoType]}
                     metadata={metadata}
                     onRenderComplete={handleRenderComplete}
                     narrationFile={audioFiles.narration || null}

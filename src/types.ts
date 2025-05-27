@@ -8,8 +8,6 @@ export type Resolution = '1080p' | '2K';
 export type FrameRate = 30 | 60;
 
 export interface VideoMetadata {
-  title: string;
-  description: string;
   videoType: 'Subtitled Video';
   lyricsLineThreshold: number; // Renamed but kept for compatibility
   metadataPosition: number; // Kept for compatibility

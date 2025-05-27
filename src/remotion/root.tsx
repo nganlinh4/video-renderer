@@ -11,8 +11,6 @@ const sampleLyrics: LyricEntry[] = [
 ];
 
 const defaultMetadata: VideoMetadata = {
-  title: 'Preview Video',
-  description: 'A sample subtitled video',
   videoType: 'Subtitled Video',
   lyricsLineThreshold: 41, // Kept for compatibility
   metadataPosition: -155, // Kept for compatibility

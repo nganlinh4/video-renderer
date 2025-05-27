@@ -23,14 +23,12 @@ interface FilePreviewSectionProps {
   mainAudioFile: File | null;
   narrationFile: File | null;
   lyricsFile: File | null;
-  backgroundFile: File | null;
 }
 
 const FilePreviewSection: React.FC<FilePreviewSectionProps> = ({
   mainAudioFile,
   narrationFile,
-  lyricsFile,
-  backgroundFile
+  lyricsFile
 }) => {
   const [fileStatus, setFileStatus] = useState<Record<string, boolean>>({});
 
@@ -86,20 +84,7 @@ const FilePreviewSection: React.FC<FilePreviewSectionProps> = ({
           </FileName>
         </CompactFilePreview>
       )}
-      {backgroundFile && (
-        <CompactFilePreview>
-          <PreviewImage
-            src={URL.createObjectURL(backgroundFile)}
-            alt="Background Preview"
-          />
-          <FileName>
-            <span>{backgroundFile.name}</span>
-            <CompactFileTag>BG</CompactFileTag>
-            <CompactFileTag status="success">✓</CompactFileTag>
-            <FileSize>{formatFileSize(backgroundFile.size)}</FileSize>
-          </FileName>
-        </CompactFilePreview>
-      )}
+
     </CompactFileGrid>
   );
 };

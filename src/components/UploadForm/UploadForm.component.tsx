@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLanguage } from '../../contexts/LanguageContext';
-import { 
+import {
   FormContainer,
   Section,
   InfoBox,
@@ -13,7 +13,6 @@ import {
 import { UploadFormProps } from './UploadForm.types';
 import { useUploadFormHandlers } from './UploadForm.hooks';
 import FilePreviewSection from './FilePreviewSection';
-import MetadataFormSection from './MetadataFormSection';
 import FileUploadSection from './FileUploadSection';
 
 const UploadForm: React.FC<UploadFormProps> = ({
@@ -27,28 +26,20 @@ const UploadForm: React.FC<UploadFormProps> = ({
     narrationFile,
     lyrics,
     lyricsFile,
-    backgroundFile,
     error,
     isDragging,
     videoPath,
-    title,
-    description,
-    videoType,
     mainAudioInputRef,
     narrationInputRef,
     lyricsInputRef,
-    backgroundInputRef,
-    handleMetadataChange,
     handleAudioChange,
     handleLyricsChange,
-    handleImageChange,
     handleDragEnter,
     handleDragLeave,
     handleDragOver,
     handleDrop,
     handleBulkDrop,
-    resetForm,
-    handleBackgroundClick
+    resetForm
   } = useUploadFormHandlers(initialValues, onFilesChange, onVideoPathChange);
 
   return (
@@ -70,29 +61,20 @@ const UploadForm: React.FC<UploadFormProps> = ({
           <DropText>
             <strong>Drop all files here</strong>
             <br />
-            Drag and drop your video, narration, SRT file, and optional background image
+            Drag and drop your video, narration, and SRT file
           </DropText>
-          {(mainAudioFile || narrationFile || lyricsFile || backgroundFile) && (
+          {(mainAudioFile || narrationFile || lyricsFile) && (
             <div style={{ marginTop: '0.75rem', width: '100%' }}>
               <h4>Detected Files</h4>
               <FilePreviewSection
                 mainAudioFile={mainAudioFile}
                 narrationFile={narrationFile}
                 lyricsFile={lyricsFile}
-                backgroundFile={backgroundFile}
               />
             </div>
           )}
         </DropZone>
       </Section>
-
-      <MetadataFormSection
-        title={title}
-        description={description}
-        videoType={videoType}
-        handleMetadataChange={handleMetadataChange}
-        t={t}
-      />
 
       <Section>
         <FormGridWide>
@@ -144,23 +126,6 @@ const UploadForm: React.FC<UploadFormProps> = ({
             onClick={() => lyricsInputRef.current?.click()}
             onChange={handleLyricsChange}
             tag="SRT"
-          />
-
-          <FileUploadSection
-            label="Background Image (Optional)"
-            dropText="Drag and drop image"
-            isDragging={isDragging['background']}
-            file={backgroundFile}
-            inputRef={backgroundInputRef as React.RefObject<HTMLInputElement>}
-            accept="image/*"
-            onDrop={(e: React.DragEvent<HTMLDivElement>) => handleDrop(e, 'background')}
-            onDragOver={handleDragOver}
-            onDragEnter={(e: React.DragEvent<HTMLDivElement>) => handleDragEnter(e, 'background')}
-            onDragLeave={(e: React.DragEvent<HTMLDivElement>) => handleDragLeave(e, 'background')}
-            onClick={() => handleBackgroundClick()}
-            onChange={handleImageChange}
-            isImage={true}
-            tag="BG"
           />
         </FormGridWide>
       </Section>

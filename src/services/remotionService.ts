@@ -15,8 +15,6 @@ export interface RenderOptions {
   backgroundImageUrl?: string;
   narrationUrl?: string;
   metadata?: {
-    title: string;
-    description: string;
     videoType: 'Subtitled Video';
     resolution?: '1080p' | '2K';
     frameRate?: 30 | 60;
@@ -33,8 +31,6 @@ export class RemotionService {
   }
 
   private defaultMetadata = {
-    title: 'Untitled Video',
-    description: 'No description',
     videoType: 'Subtitled Video' as const,
     resolution: '2K' as const,
     frameRate: 60 as const,

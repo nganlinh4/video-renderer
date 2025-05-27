@@ -80,10 +80,7 @@ interface RenderControlProps {
   audioFile: File | null;
   lyrics: LyricEntry[] | null;
   durationInSeconds: number;
-  backgroundFile?: File | null;
   metadata: {
-    title: string;
-    description: string;
     videoType: 'Subtitled Video';
     lyricsLineThreshold: number;
     metadataPosition: number;
@@ -99,7 +96,6 @@ export const RenderControl: React.FC<RenderControlProps> = ({
   audioFile,
   lyrics,
   durationInSeconds,
-  backgroundFile,
   metadata,
   onRenderComplete,
   narrationFile
@@ -143,7 +139,7 @@ export const RenderControl: React.FC<RenderControlProps> = ({
       audioFile,
       lyrics: lyrics || [],
       durationInSeconds,
-      backgroundFiles: backgroundFile ? { 'Subtitled Video': backgroundFile } : {},
+      backgroundFiles: {},
       metadata: {
         ...metadata,
         videoType: metadata.videoType,
@@ -164,7 +160,7 @@ export const RenderControl: React.FC<RenderControlProps> = ({
       audioFile,
       lyrics: lyrics || [],
       durationInSeconds,
-      backgroundFiles: backgroundFile ? { 'Subtitled Video': backgroundFile } : {},
+      backgroundFiles: {},
       metadata: {
         ...metadata,
         videoType: 'Subtitled Video',
@@ -303,7 +299,6 @@ export const RenderControl: React.FC<RenderControlProps> = ({
         lyrics,
         durationInSeconds,
         {
-          backgroundImageUrl: backgroundFile ? URL.createObjectURL(backgroundFile) : undefined,
           metadata,
           ...additionalUrls
         },
@@ -358,15 +353,13 @@ export const RenderControl: React.FC<RenderControlProps> = ({
       // Log which video type we're currently rendering
       console.log(`Preparing to render ${videoType} version`);
 
-      // Get the background for this video type
-      const currentBackgroundUrl = backgroundFile ? URL.createObjectURL(backgroundFile) : undefined;
+      // No background image support
 
       const videoPath = await remotionService.renderVideo(
         audioFile,
         lyrics,
         durationInSeconds,
         {
-          backgroundImageUrl: currentBackgroundUrl,
           metadata: { ...metadata, videoType },
           ...typeSpecificAudioConfig
         },
@@ -381,7 +374,6 @@ export const RenderControl: React.FC<RenderControlProps> = ({
 
       // Clean up URLs
       Object.values(typeSpecificAudioConfig).forEach(url => URL.revokeObjectURL(url));
-      if (currentBackgroundUrl) URL.revokeObjectURL(currentBackgroundUrl);
 
       // Add to rendered videos list
       setRenderedVideos(prev => [...prev, { type: videoType, url: videoPath }]);
@@ -430,21 +422,6 @@ export const RenderControl: React.FC<RenderControlProps> = ({
       }
       setProgress(40);
 
-      // Upload background image (if provided)
-      let backgroundData = null;
-      if (backgroundFile) {
-        const bgFormData = new FormData();
-        bgFormData.append('file', backgroundFile);
-        const bgResponse = await fetch(`${apiUrl}/upload/image`, {
-          method: 'POST',
-          body: bgFormData
-        });
-
-        if (bgResponse.ok) {
-          backgroundData = await bgResponse.json();
-        }
-      }
-
       setProgress(60);
 
       // Start rendering with all uploaded files
@@ -454,7 +431,6 @@ export const RenderControl: React.FC<RenderControlProps> = ({
         audioFile: audioData.filename,
         lyrics,
         durationInSeconds,
-        backgroundImageUrl: backgroundData ? `${apiUrl}/uploads/${backgroundData.filename}` : undefined,
         metadata,
         narrationUrl: narrationData ? `${apiUrl}/uploads/${narrationData.filename}` : undefined,
       };

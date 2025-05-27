@@ -17,8 +17,7 @@ interface Props {
   lyrics?: LyricEntry[] | null;
   background?: File | null;
   videoType?: VideoType;
-  title?: string;
-  description?: string;
+
   addToQueue?: (videoType: VideoType) => void;
   addAllVersions?: () => void;
 }
@@ -103,8 +102,6 @@ const VideoPreview: React.FC<Props> = ({
   lyrics,
   background,
   videoType = 'Subtitled Video',
-  title = '',
-  description = '',
   addToQueue,
   addAllVersions
 }) => {
@@ -123,10 +120,10 @@ const VideoPreview: React.FC<Props> = ({
     // Otherwise, we could simulate or generate a preview
     // This is just a placeholder for your actual preview generation logic
     setPreviewUrl(null);
-  }, [videoUrl, title, description, videoType, lyrics]);
+  }, [videoUrl, videoType, lyrics]);
 
   const hasAudioFile = audioFiles?.main !== null;
-  const hasRequiredData = hasAudioFile && title && description;
+  const hasRequiredData = hasAudioFile;
 
   return (
     <PreviewContainer>
@@ -145,8 +142,7 @@ const VideoPreview: React.FC<Props> = ({
                   <path d="M9.5 16V8l7 4-7 4z"/>
                 </svg>
                 <div>
-                  <h3>{title}</h3>
-                  <p>{description}</p>
+                  <h3>Subtitled Video</h3>
                   <p>{t('videoType')}: {t(videoType.toLowerCase().replace(' ', ''))}</p>
                 </div>
               </>
@@ -155,9 +151,6 @@ const VideoPreview: React.FC<Props> = ({
                 <p>{t('noVideo')}</p>
                 {!hasAudioFile && (
                   <p>{t('uploadAudioFirst')}</p>
-                )}
-                {!title && !description && (
-                  <p>{t('enterTitleAndDescription')}</p>
                 )}
               </>
             )}
@@ -170,16 +163,8 @@ const VideoPreview: React.FC<Props> = ({
           <MetadataPreview>
             <MetadataTitle>{t('videoDetails')}</MetadataTitle>
             <MetadataRow>
-              <strong>{t('title')}:</strong>
-              <span>{title}</span>
-            </MetadataRow>
-            <MetadataRow>
-              <strong>{t('description')}:</strong>
-              <span>{description}</span>
-            </MetadataRow>
-            <MetadataRow>
               <strong>{t('videoType')}:</strong>
-              <span>{t(videoType.toLowerCase().replace(' ', ''))}</span>
+              <span>{videoType}</span>
             </MetadataRow>
             <MetadataRow>
               <strong>{t('files')}:</strong>

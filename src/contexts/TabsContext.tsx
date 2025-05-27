@@ -52,8 +52,6 @@ export function createEmptyWorkspace(id: string, name: string): WorkspaceTab {
   albumArtFile: null,
   backgroundFiles: {},
   metadata: {
-    title: '',
-    description: '',
     videoType: 'Subtitled Video',
     lyricsLineThreshold: 41,
     metadataPosition: -155,

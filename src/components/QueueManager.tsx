@@ -203,8 +203,6 @@ const QueueManager: React.FC = () => {
       id: item.id,
       status: displayStatus,
       progress: displayProgress,
-      title: item.metadata.title,
-      description: item.metadata.description,
       videoType: item.metadata.videoType,
       outputPath: item.result?.[item.metadata.videoType],
       errorMessage: item.error
@@ -266,7 +264,7 @@ const QueueManager: React.FC = () => {
           <QueueItem key={item.id}>
             <QueueItemHeader>
               <QueueItemTitle>
-                {item.title}
+                Subtitled Video
                 <small>({item.videoType})</small>
               </QueueItemTitle>
               <Badge variant={getBadgeVariant(item.status)}>

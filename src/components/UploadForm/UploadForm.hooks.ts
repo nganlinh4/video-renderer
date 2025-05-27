@@ -16,18 +16,13 @@ export const useUploadFormHandlers = (
   const [narrationFile, setNarrationFile] = useState<File | null>(initialValues?.audioFiles.narration || null);
   const [lyrics, setLyrics] = useState<LyricEntry[] | null>(initialValues?.lyrics || null);
   const [lyricsFile, setLyricsFile] = useState<File | null>(initialValues?.lyricsFile || null);
-  const [backgroundFile, setBackgroundFile] = useState<File | null>(initialValues?.backgroundFile || null);
   const [error, setError] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState<{[key: string]: boolean}>({});
   const [videoPath, setVideoPath] = useState<string | null>(null);
-  const [title, setTitle] = useState(initialValues?.metadata.title || '');
-  const [description, setDescription] = useState(initialValues?.metadata.description || '');
-  const [videoType] = useState<'Subtitled Video'>('Subtitled Video');
 
   const mainAudioInputRef = useRef<HTMLInputElement>(null);
   const narrationInputRef = useRef<HTMLInputElement>(null);
   const lyricsInputRef = useRef<HTMLInputElement>(null);
-  const backgroundInputRef = useRef<HTMLInputElement>(null);
 
   const debounce = <T extends (...args: any[]) => void>(fn: T, delay: number) => {
     let timeoutId: NodeJS.Timeout;
@@ -59,9 +54,7 @@ export const useUploadFormHandlers = (
     };
 
     const metadata: VideoMetadata = {
-      title,
-      description,
-      videoType,
+      videoType: 'Subtitled Video',
       lyricsLineThreshold: 41, // Kept for compatibility
       metadataPosition: -155, // Kept for compatibility
       metadataWidth: 800, // Kept for compatibility
@@ -69,54 +62,10 @@ export const useUploadFormHandlers = (
       frameRate: initialValues?.metadata?.frameRate || 60
     };
 
-    onFilesChange(audioFiles, lyrics, backgroundFile, metadata, lyricsFile);
+    onFilesChange(audioFiles, lyrics, metadata, lyricsFile);
   };
 
-  const debouncedUpdateFiles = useCallback(
-    debounce((newMetadata: VideoMetadata) => {
-      const completeMetadata = {
-        ...newMetadata,
-        lyricsLineThreshold: 41, // Kept for compatibility
-        metadataPosition: -155, // Kept for compatibility
-        metadataWidth: 800, // Kept for compatibility
-        resolution: initialValues?.metadata?.resolution || '1080p',
-        frameRate: initialValues?.metadata?.frameRate || 60
-      };
-      onFilesChange(
-        { main: mainAudioFile, narration: narrationFile },
-        lyrics,
-        backgroundFile,
-        completeMetadata,
-        lyricsFile
-      );
-    }, 500),
-    [mainAudioFile, narrationFile, lyrics, backgroundFile, lyricsFile]
-  );
 
-  const handleMetadataChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = e.target;
-
-    if (name === 'title') {
-      setTitle(value);
-    } else if (name === 'description') {
-      setDescription(value);
-    }
-
-    const newMetadata: VideoMetadata = {
-      title: name === 'title' ? value : title,
-      description: name === 'description' ? value : description,
-      videoType,
-      lyricsLineThreshold: 41,
-      metadataPosition: -155,
-      metadataWidth: 800,
-      resolution: initialValues?.metadata?.resolution || '1080p',
-      frameRate: initialValues?.metadata?.frameRate || 60
-    };
-
-    debouncedUpdateFiles(newMetadata);
-  };
 
   const handleAudioChange = async (e: React.ChangeEvent<HTMLInputElement>, type: 'main' | 'narration') => {
     if (e.target.files && e.target.files[0]) {
@@ -180,14 +129,13 @@ export const useUploadFormHandlers = (
             narration: narrationFile
           },
           parsedLyrics,
-          backgroundFile,
           {
-            title,
-            description,
-            videoType,
+            videoType: 'Subtitled Video',
             lyricsLineThreshold: 41,
             metadataPosition: -155,
-            metadataWidth: 800
+            metadataWidth: 800,
+            resolution: initialValues?.metadata?.resolution || '1080p',
+            frameRate: initialValues?.metadata?.frameRate || 60
           },
           file
         );
@@ -198,21 +146,7 @@ export const useUploadFormHandlers = (
     }
   };
 
-  const handleImageChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      if (!file.type.startsWith('image/')) {
-        setError('Please upload a valid image file (PNG, JPG, etc.)');
-        return;
-      }
 
-      setBackgroundFile(file);
-      updateFiles();
-      setError(null);
-    }
-  };
 
   const handleDragEnter = (e: React.DragEvent, type: string) => {
     e.preventDefault();
@@ -233,7 +167,7 @@ export const useUploadFormHandlers = (
 
   const handleDrop = async (
     e: React.DragEvent,
-    type: 'main' | 'narration' | 'lyrics' | 'background'
+    type: 'main' | 'narration' | 'lyrics'
   ) => {
     e.preventDefault();
     e.stopPropagation();
@@ -291,14 +225,13 @@ export const useUploadFormHandlers = (
                 narration: narrationFile
               },
               parsedLyrics,
-              backgroundFile,
               {
-                title,
-                description,
-                videoType,
+                videoType: 'Subtitled Video',
                 lyricsLineThreshold: 41,
                 metadataPosition: -155,
-                metadataWidth: 800
+                metadataWidth: 800,
+                resolution: initialValues?.metadata?.resolution || '1080p',
+                frameRate: initialValues?.metadata?.frameRate || 60
               },
               file
             );
@@ -308,14 +241,6 @@ export const useUploadFormHandlers = (
             setLyrics(null);
             return;
           }
-          break;
-        case 'background':
-          if (!file.type.startsWith('image/')) {
-            setError('Please upload a valid image file');
-            return;
-          }
-          setBackgroundFile(file);
-          updateFiles();
           break;
       }
       setError(null);
@@ -336,7 +261,6 @@ export const useUploadFormHandlers = (
     let detectedMain: File | null = null;
     let detectedNarration: File | null = null;
     let detectedLyrics: File | null = null;
-    let detectedBackground: File | null = null;
     let parsedLyrics: LyricEntry[] | null = null;
 
     for (const file of files) {
@@ -380,18 +304,12 @@ export const useUploadFormHandlers = (
         }
         continue;
       }
-
-      // Check for image files
-      if (file.type.startsWith('image/')) {
-        detectedBackground = file;
-      }
     }
 
     if (detectedMain) setMainAudioFile(detectedMain);
     if (detectedNarration) setNarrationFile(detectedNarration);
     if (detectedLyrics) setLyricsFile(detectedLyrics);
     if (parsedLyrics) setLyrics(parsedLyrics);
-    if (detectedBackground) setBackgroundFile(detectedBackground);
 
     setTimeout(() => {
       const audioFiles: AudioFiles = {
@@ -400,9 +318,7 @@ export const useUploadFormHandlers = (
       };
 
       const metadata: VideoMetadata = {
-        title,
-        description,
-        videoType,
+        videoType: 'Subtitled Video',
         lyricsLineThreshold: 41,
         metadataPosition: -155,
         metadataWidth: 800,
@@ -410,7 +326,7 @@ export const useUploadFormHandlers = (
         frameRate: initialValues?.metadata?.frameRate || 60
       };
 
-      onFilesChange(audioFiles, parsedLyrics, detectedBackground, metadata, detectedLyrics);
+      onFilesChange(audioFiles, parsedLyrics, metadata, detectedLyrics);
     }, 0);
   };
 
@@ -418,30 +334,26 @@ export const useUploadFormHandlers = (
     setMainAudioFile(null);
     setNarrationFile(null);
     setLyricsFile(null);
-    setBackgroundFile(null);
     setLyrics(null);
     setError(null);
     setVideoPath(null);
-    setTitle('');
-    setDescription('');
     onFilesChange(
       { main: null, narration: null },
       null,
-      null,
-      { title: '', description: '', videoType: 'Subtitled Video', lyricsLineThreshold: 41, metadataPosition: -155, metadataWidth: 800 },
+      {
+        videoType: 'Subtitled Video',
+        lyricsLineThreshold: 41,
+        metadataPosition: -155,
+        metadataWidth: 800,
+        resolution: '1080p',
+        frameRate: 60
+      },
       null
     );
 
     if (mainAudioInputRef.current) mainAudioInputRef.current.value = '';
     if (narrationInputRef.current) narrationInputRef.current.value = '';
     if (lyricsInputRef.current) lyricsInputRef.current.value = '';
-    if (backgroundInputRef.current) backgroundInputRef.current.value = '';
-  };
-
-  const handleBackgroundClick = () => {
-    if (backgroundInputRef.current) {
-      backgroundInputRef.current.click();
-    }
   };
 
   return {
@@ -449,27 +361,19 @@ export const useUploadFormHandlers = (
     narrationFile,
     lyrics,
     lyricsFile,
-    backgroundFile,
     error,
     isDragging,
     videoPath,
-    title,
-    description,
-    videoType,
     mainAudioInputRef,
     narrationInputRef,
     lyricsInputRef,
-    backgroundInputRef,
-    handleMetadataChange,
     handleAudioChange,
     handleLyricsChange,
-    handleImageChange,
     handleDragEnter,
     handleDragLeave,
     handleDragOver,
     handleDrop,
     handleBulkDrop,
-    resetForm,
-    handleBackgroundClick
+    resetForm
   };
 };

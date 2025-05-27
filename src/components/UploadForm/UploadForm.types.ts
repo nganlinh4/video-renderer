@@ -6,8 +6,6 @@ export interface AudioFiles {
 }
 
 export interface VideoMetadata {
-  title: string;
-  description: string;
   videoType: 'Subtitled Video';
   lyricsLineThreshold: number; // Kept for compatibility
   metadataPosition: number; // Kept for compatibility
@@ -20,7 +18,6 @@ export interface UploadFormProps {
   onFilesChange: (
     audioFiles: AudioFiles,
     lyrics: LyricEntry[] | null,
-    background: File | null,
     metadata: VideoMetadata,
     lyricsFile: File | null
   ) => void;
@@ -28,7 +25,6 @@ export interface UploadFormProps {
   initialValues?: {
     audioFiles: AudioFiles;
     lyrics: LyricEntry[] | null;
-    backgroundFile: File | null;
     metadata: VideoMetadata;
     lyricsFile: File | null;
   };

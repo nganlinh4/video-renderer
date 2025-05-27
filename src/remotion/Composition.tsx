@@ -14,8 +14,6 @@ interface Props {
 
 // Default metadata to use if none is provided
 const DEFAULT_METADATA: VideoMetadata = {
-  title: 'Untitled Video',
-  description: 'No description',
   videoType: 'Subtitled Video',
   lyricsLineThreshold: 41, // Kept for compatibility
   metadataPosition: -155, // Kept for compatibility
