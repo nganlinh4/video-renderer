@@ -108,7 +108,7 @@ export const SubtitledVideoContent: React.FC<Props> = ({
         {showVideo ? (
           <Video
             src={audioUrl}
-            volume={(metadata.originalAudioVolume || 100) / 100}
+            volume={(metadata.originalAudioVolume ?? 100) / 100}
             style={{
               width: '100%',
               height: '100%',
@@ -177,8 +177,8 @@ export const SubtitledVideoContent: React.FC<Props> = ({
         </div>
 
         {/* Audio tracks - only add separate audio if not using video (video already includes audio) */}
-        {!showVideo && <Audio src={audioUrl} volume={(metadata.originalAudioVolume || 100) / 100} />}
-        {narrationUrl && <Audio src={narrationUrl} volume={(metadata.narrationVolume || 100) / 100} />}
+        {!showVideo && <Audio src={audioUrl} volume={(metadata.originalAudioVolume ?? 100) / 100} />}
+        {narrationUrl && <Audio src={narrationUrl} volume={(metadata.narrationVolume ?? 100) / 100} />}
       </AbsoluteFill>
     </ThemeProvider>
   );

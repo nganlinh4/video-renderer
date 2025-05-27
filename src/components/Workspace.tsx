@@ -341,15 +341,15 @@ const Workspace: React.FC<WorkspaceProps> = ({ tabId }) => {
                 <SliderControl>
                   <SliderLabel>
                     Original Audio Volume
-                    <SliderValue>{metadata.originalAudioVolume || 100}%</SliderValue>
+                    <SliderValue>{metadata.originalAudioVolume ?? 100}%</SliderValue>
                   </SliderLabel>
                   <input
                     type="range"
                     min="0"
                     max="100"
-                    value={metadata.originalAudioVolume || 100}
+                    value={metadata.originalAudioVolume ?? 100}
                     onChange={handleOriginalAudioVolumeChange}
-                    step="5"
+                    step="1"
                   />
                   <SliderDescription>Adjust the volume of the original video/audio track.</SliderDescription>
                 </SliderControl>
@@ -358,15 +358,15 @@ const Workspace: React.FC<WorkspaceProps> = ({ tabId }) => {
                   <SliderControl>
                     <SliderLabel>
                       Narration Volume
-                      <SliderValue>{metadata.narrationVolume || 100}%</SliderValue>
+                      <SliderValue>{metadata.narrationVolume ?? 100}%</SliderValue>
                     </SliderLabel>
                     <input
                       type="range"
                       min="0"
                       max="100"
-                      value={metadata.narrationVolume || 100}
+                      value={metadata.narrationVolume ?? 100}
                       onChange={handleNarrationVolumeChange}
-                      step="5"
+                      step="1"
                     />
                     <SliderDescription>Adjust the volume of the narration audio track.</SliderDescription>
                   </SliderControl>
