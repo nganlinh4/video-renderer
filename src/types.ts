@@ -28,6 +28,7 @@ export interface Props {
   durationInSeconds: number;
   backgroundImageUrl?: string; // Optional background image
   metadata: VideoMetadata;
+  isVideoFile?: boolean; // Flag to indicate if the main file is a video
 }
 
 // Interface for components that can work with either a File or URL

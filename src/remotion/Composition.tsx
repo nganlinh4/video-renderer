@@ -10,6 +10,7 @@ interface Props {
   backgroundImageUrl?: string;
   metadata?: VideoMetadata; // Make metadata optional again to match what might come from the server
   narrationUrl?: string;
+  isVideoFile?: boolean;
 }
 
 // Default metadata to use if none is provided
@@ -28,7 +29,8 @@ const SubtitledVideoWrapper: React.FC<Props> = ({
   durationInSeconds,
   backgroundImageUrl,
   metadata = DEFAULT_METADATA,
-  narrationUrl
+  narrationUrl,
+  isVideoFile = false
 }) => {
   return (
     <SubtitledVideoContent
@@ -38,6 +40,7 @@ const SubtitledVideoWrapper: React.FC<Props> = ({
       backgroundImageUrl={backgroundImageUrl}
       metadata={metadata}
       narrationUrl={narrationUrl}
+      isVideoFile={isVideoFile}
     />
   );
 };

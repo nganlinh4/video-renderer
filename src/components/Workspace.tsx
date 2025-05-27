@@ -261,6 +261,25 @@ const Workspace: React.FC<WorkspaceProps> = ({ tabId }) => {
   const audioDurationWithBuffer = durationInSeconds + 2;
   const durationInFrames = Math.ceil(Math.max(60, audioDurationWithBuffer * metadata.frameRate));
 
+  // Helper function to check if a file is a video
+  const isVideoFile = (file: File | null): boolean => {
+    if (!file) return false;
+    const videoTypes = ['video/mp4', 'video/mov', 'video/avi', 'video/mkv', 'video/webm', 'video/m4v', 'video/quicktime'];
+    return videoTypes.includes(file.type);
+  };
+
+  // Check if the main audio file is actually a video
+  const mainFileIsVideo = isVideoFile(audioFiles?.main || null);
+
+  // Debug logging
+  console.log('Workspace Debug:', {
+    mainFile: audioFiles?.main,
+    mainFileName: audioFiles?.main?.name,
+    mainFileType: audioFiles?.main?.type,
+    mainFileIsVideo,
+    audioUrlMain: audioUrls.main
+  });
+
   return (
     <WorkspaceContainer>
       <WorkspaceTopSection>
@@ -308,7 +327,8 @@ const Workspace: React.FC<WorkspaceProps> = ({ tabId }) => {
                     lyrics: lyrics || [],
                     durationInSeconds,
                     backgroundImageUrl: backgroundUrls[metadata.videoType] || '',
-                    metadata
+                    metadata,
+                    isVideoFile: mainFileIsVideo
                   }}
                 />
 

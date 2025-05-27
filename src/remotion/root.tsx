@@ -28,7 +28,8 @@ const VideoComponentWrapper: React.FC<Record<string, unknown>> = (props) => {
     durationInSeconds: (props.durationInSeconds as number) || 6,
     metadata: (props.metadata as VideoMetadata) || defaultMetadata,
     backgroundImageUrl: props.backgroundImageUrl as string | undefined,
-    narrationUrl: props.narrationUrl as string | undefined
+    narrationUrl: props.narrationUrl as string | undefined,
+    isVideoFile: (props.isVideoFile as boolean) || false
   };
 
   return <SubtitledVideoWrapper {...safeProps} />;

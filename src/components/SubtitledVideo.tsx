@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { AbsoluteFill, useCurrentFrame, interpolate, Audio, useVideoConfig, Easing } from 'remotion';
+import { AbsoluteFill, useCurrentFrame, interpolate, Audio, Video, useVideoConfig, Easing } from 'remotion';
 import { LyricEntry, VideoMetadata } from '../types';
 import styled, { ThemeProvider } from 'styled-components';
 
@@ -33,12 +33,13 @@ const getScaledValue = (value: number, metadata: VideoMetadata): number => {
 };
 
 export interface Props {
-  audioUrl: string; // Original video audio
+  audioUrl: string; // Original video/audio file
   narrationUrl?: string; // Narration audio
   lyrics: LyricEntry[]; // Subtitles
   durationInSeconds: number;
   backgroundImageUrl?: string; // Optional background image
   metadata: VideoMetadata;
+  isVideoFile?: boolean; // Flag to indicate if the main file is a video
 }
 
 export const SubtitledVideoContent: React.FC<Props> = ({
@@ -47,11 +48,23 @@ export const SubtitledVideoContent: React.FC<Props> = ({
   lyrics,
   durationInSeconds,
   backgroundImageUrl,
-  metadata
+  metadata,
+  isVideoFile = false
 }) => {
   const frame = useCurrentFrame();
   const { fps, width, height } = useVideoConfig();
   const currentTimeInSeconds = frame / fps;
+
+  // Determine if we should show video or just audio with background
+  const showVideo = isVideoFile;
+
+  // Debug logging
+  console.log('SubtitledVideoContent Debug:', {
+    audioUrl,
+    isVideoFile,
+    showVideo,
+    hasBackgroundImage: !!backgroundImageUrl
+  });
 
   // Process subtitles based on line threshold
   const processedLyrics = useMemo(() => {
@@ -99,18 +112,30 @@ export const SubtitledVideoContent: React.FC<Props> = ({
           position: 'relative'
         }}
       >
-        {/* Background image if provided */}
-        {backgroundImageUrl && (
-          <div style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.5)), url(${backgroundImageUrl})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-          }} />
+        {/* Video background if uploaded file is a video */}
+        {showVideo ? (
+          <Video
+            src={audioUrl}
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+            }}
+          />
+        ) : (
+          /* Background image if provided and no video */
+          backgroundImageUrl && (
+            <div style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.5)), url(${backgroundImageUrl})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+            }} />
+          )
         )}
 
         {/* Subtitle container */}
@@ -129,10 +154,10 @@ export const SubtitledVideoContent: React.FC<Props> = ({
         >
           {processedLyrics?.map((lyric: LyricEntry, index: number) => {
             const progress = getLyricProgress(lyric, currentTimeInSeconds);
-            
+
             // Only render subtitles that are visible or transitioning
             if (progress <= 0) return null;
-            
+
             return (
               <div
                 key={index}
@@ -158,8 +183,8 @@ export const SubtitledVideoContent: React.FC<Props> = ({
           })}
         </div>
 
-        {/* Audio tracks */}
-        <Audio src={audioUrl} volume={1} />
+        {/* Audio tracks - only add separate audio if not using video (video already includes audio) */}
+        {!showVideo && <Audio src={audioUrl} volume={1} />}
         {narrationUrl && <Audio src={narrationUrl} volume={1} />}
       </AbsoluteFill>
     </ThemeProvider>
