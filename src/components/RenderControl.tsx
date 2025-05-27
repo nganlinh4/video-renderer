@@ -144,7 +144,9 @@ export const RenderControl: React.FC<RenderControlProps> = ({
         ...metadata,
         videoType: metadata.videoType,
         resolution: metadata.resolution,
-        frameRate: metadata.frameRate
+        frameRate: metadata.frameRate,
+        originalAudioVolume: (metadata as any).originalAudioVolume || 100,
+        narrationVolume: (metadata as any).narrationVolume || 100
       },
       narrationFile,
       singleVersion: true
@@ -165,7 +167,9 @@ export const RenderControl: React.FC<RenderControlProps> = ({
         ...metadata,
         videoType: 'Subtitled Video',
         resolution: metadata.resolution,
-        frameRate: metadata.frameRate
+        frameRate: metadata.frameRate,
+        originalAudioVolume: (metadata as any).originalAudioVolume || 100,
+        narrationVolume: (metadata as any).narrationVolume || 100
       },
       narrationFile,
       singleVersion: true

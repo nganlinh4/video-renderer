@@ -36,7 +36,9 @@ export class RemotionService {
     frameRate: 60 as const,
     lyricsLineThreshold: 41,
     metadataPosition: -155,
-    metadataWidth: 450
+    metadataWidth: 450,
+    originalAudioVolume: 100,
+    narrationVolume: 100
   };
 
   private async uploadFile(file: File, endpoint: string): Promise<string> {

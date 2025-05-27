@@ -57,7 +57,9 @@ export function createEmptyWorkspace(id: string, name: string): WorkspaceTab {
     metadataPosition: -155,
     metadataWidth: 450,
     resolution: resolution as '1080p' | '2K',
-    frameRate: frameRate as 30 | 60
+    frameRate: frameRate as 30 | 60,
+    originalAudioVolume: 100,
+    narrationVolume: 100
   },
   durationInSeconds: 0,
   videoPath: ''

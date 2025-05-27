@@ -14,6 +14,8 @@ export interface VideoMetadata {
   metadataWidth: number; // Width of the metadata container
   resolution: Resolution; // Video resolution (1080p or 2K)
   frameRate: FrameRate; // Frame rate (30 or 60 fps)
+  originalAudioVolume: number; // Volume for original audio/video (0-100)
+  narrationVolume: number; // Volume for narration audio (0-100)
 }
 
 export interface AudioFiles {

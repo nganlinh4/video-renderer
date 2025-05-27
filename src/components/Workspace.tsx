@@ -188,24 +188,24 @@ const Workspace: React.FC<WorkspaceProps> = ({ tabId }) => {
     });
   };
 
-  // Handle metadata position change
-  const handleMetadataPositionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newPosition = parseInt(e.target.value, 10);
+  // Handle original audio volume change
+  const handleOriginalAudioVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newVolume = parseInt(e.target.value, 10);
     updateTabContent(tabId, {
       metadata: {
         ...metadata,
-        metadataPosition: newPosition
+        originalAudioVolume: newVolume
       }
     });
   };
 
-  // Handle metadata width change
-  const handleMetadataWidthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newWidth = parseInt(e.target.value, 10);
+  // Handle narration volume change
+  const handleNarrationVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newVolume = parseInt(e.target.value, 10);
     updateTabContent(tabId, {
       metadata: {
         ...metadata,
-        metadataWidth: newWidth
+        narrationVolume: newVolume
       }
     });
   };
@@ -270,15 +270,6 @@ const Workspace: React.FC<WorkspaceProps> = ({ tabId }) => {
 
   // Check if the main audio file is actually a video
   const mainFileIsVideo = isVideoFile(audioFiles?.main || null);
-
-  // Debug logging
-  console.log('Workspace Debug:', {
-    mainFile: audioFiles?.main,
-    mainFileName: audioFiles?.main?.name,
-    mainFileType: audioFiles?.main?.type,
-    mainFileIsVideo,
-    audioUrlMain: audioUrls.main
-  });
 
   return (
     <WorkspaceContainer>
@@ -346,48 +337,45 @@ const Workspace: React.FC<WorkspaceProps> = ({ tabId }) => {
               </PreviewContainer>
 
               <ControlPanelContainer>
-                <h3>{t('adjustPreview')}</h3>
+                <h3>Audio Settings</h3>
                 <SliderControl>
                   <SliderLabel>
-                    {t('metadataPosition')}
-                    <SliderValue>
-                      {metadata.resolution === '2K'
-                        ? Math.round(metadata.metadataPosition * (2560/1920))
-                        : metadata.metadataPosition}px
-                    </SliderValue>
+                    Original Audio Volume
+                    <SliderValue>{metadata.originalAudioVolume || 100}%</SliderValue>
                   </SliderLabel>
                   <input
                     type="range"
-                    min="-210"
-                    max="-155"
-                    value={metadata.metadataPosition || -155}
-                    onChange={handleMetadataPositionChange}
-                    step="1"
+                    min="0"
+                    max="100"
+                    value={metadata.originalAudioVolume || 100}
+                    onChange={handleOriginalAudioVolumeChange}
+                    step="5"
                   />
-                  <SliderDescription>{t('metadataPositionDesc')}</SliderDescription>
+                  <SliderDescription>Adjust the volume of the original video/audio track.</SliderDescription>
                 </SliderControl>
+
+                {audioFiles?.narration && (
+                  <SliderControl>
+                    <SliderLabel>
+                      Narration Volume
+                      <SliderValue>{metadata.narrationVolume || 100}%</SliderValue>
+                    </SliderLabel>
+                    <input
+                      type="range"
+                      min="0"
+                      max="100"
+                      value={metadata.narrationVolume || 100}
+                      onChange={handleNarrationVolumeChange}
+                      step="5"
+                    />
+                    <SliderDescription>Adjust the volume of the narration audio track.</SliderDescription>
+                  </SliderControl>
+                )}
+
+                <h3>Subtitle Settings</h3>
                 <SliderControl>
                   <SliderLabel>
-                    {t('metadataWidth')}
-                    <SliderValue>
-                      {metadata.resolution === '2K'
-                        ? Math.round(metadata.metadataWidth * (2560/1920))
-                        : metadata.metadataWidth}px
-                    </SliderValue>
-                  </SliderLabel>
-                  <input
-                    type="range"
-                    min="400"
-                    max="900"
-                    value={metadata.metadataWidth || 450}
-                    onChange={handleMetadataWidthChange}
-                    step="10"
-                  />
-                  <SliderDescription>{t('metadataWidthDesc')}</SliderDescription>
-                </SliderControl>
-                <SliderControl>
-                  <SliderLabel>
-                    {t('lyricsLineThreshold')}
+                    Subtitle Line Length
                     <SliderValue>{metadata.lyricsLineThreshold}</SliderValue>
                   </SliderLabel>
                   <input
@@ -397,7 +385,7 @@ const Workspace: React.FC<WorkspaceProps> = ({ tabId }) => {
                     value={metadata.lyricsLineThreshold || 40}
                     onChange={handleLyricsThresholdChange}
                   />
-                  <SliderDescription>{t('lyricsLineThresholdDesc')}</SliderDescription>
+                  <SliderDescription>Adjust the maximum characters per subtitle line.</SliderDescription>
                 </SliderControl>
 
                 <h3>{t('videoSettings')}</h3>

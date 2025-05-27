@@ -53,14 +53,16 @@ export const useUploadFormHandlers = (
       narration: narrationFile
     };
 
-    const metadata: VideoMetadata = {
+    const metadata = {
       videoType: 'Subtitled Video',
       lyricsLineThreshold: 41, // Kept for compatibility
       metadataPosition: -155, // Kept for compatibility
       metadataWidth: 800, // Kept for compatibility
       resolution: initialValues?.metadata?.resolution || '1080p',
-      frameRate: initialValues?.metadata?.frameRate || 60
-    };
+      frameRate: initialValues?.metadata?.frameRate || 60,
+      originalAudioVolume: (initialValues?.metadata as any)?.originalAudioVolume || 100,
+      narrationVolume: (initialValues?.metadata as any)?.narrationVolume || 100
+    } as VideoMetadata;
 
     onFilesChange(audioFiles, lyrics, metadata, lyricsFile);
   };
@@ -135,7 +137,9 @@ export const useUploadFormHandlers = (
             metadataPosition: -155,
             metadataWidth: 800,
             resolution: initialValues?.metadata?.resolution || '1080p',
-            frameRate: initialValues?.metadata?.frameRate || 60
+            frameRate: initialValues?.metadata?.frameRate || 60,
+            originalAudioVolume: initialValues?.metadata?.originalAudioVolume || 100,
+            narrationVolume: initialValues?.metadata?.narrationVolume || 100
           },
           file
         );
@@ -231,8 +235,10 @@ export const useUploadFormHandlers = (
                 metadataPosition: -155,
                 metadataWidth: 800,
                 resolution: initialValues?.metadata?.resolution || '1080p',
-                frameRate: initialValues?.metadata?.frameRate || 60
-              },
+                frameRate: initialValues?.metadata?.frameRate || 60,
+                originalAudioVolume: (initialValues?.metadata as any)?.originalAudioVolume || 100,
+                narrationVolume: (initialValues?.metadata as any)?.narrationVolume || 100
+              } as VideoMetadata,
               file
             );
             setError(null);
@@ -317,14 +323,16 @@ export const useUploadFormHandlers = (
         narration: detectedNarration
       };
 
-      const metadata: VideoMetadata = {
+      const metadata = {
         videoType: 'Subtitled Video',
         lyricsLineThreshold: 41,
         metadataPosition: -155,
         metadataWidth: 800,
         resolution: initialValues?.metadata?.resolution || '1080p',
-        frameRate: initialValues?.metadata?.frameRate || 60
-      };
+        frameRate: initialValues?.metadata?.frameRate || 60,
+        originalAudioVolume: (initialValues?.metadata as any)?.originalAudioVolume || 100,
+        narrationVolume: (initialValues?.metadata as any)?.narrationVolume || 100
+      } as VideoMetadata;
 
       onFilesChange(audioFiles, parsedLyrics, metadata, detectedLyrics);
     }, 0);
@@ -346,8 +354,10 @@ export const useUploadFormHandlers = (
         metadataPosition: -155,
         metadataWidth: 800,
         resolution: '1080p',
-        frameRate: 60
-      },
+        frameRate: 60,
+        originalAudioVolume: 100,
+        narrationVolume: 100
+      } as VideoMetadata,
       null
     );
 

@@ -20,7 +20,9 @@ const DEFAULT_METADATA: VideoMetadata = {
   metadataPosition: -155, // Kept for compatibility
   metadataWidth: 450, // Kept for compatibility
   resolution: '2K',
-  frameRate: 60
+  frameRate: 60,
+  originalAudioVolume: 100,
+  narrationVolume: 100
 };
 
 const SubtitledVideoWrapper: React.FC<Props> = ({

@@ -58,14 +58,6 @@ export const SubtitledVideoContent: React.FC<Props> = ({
   // Determine if we should show video or just audio with background
   const showVideo = isVideoFile;
 
-  // Debug logging
-  console.log('SubtitledVideoContent Debug:', {
-    audioUrl,
-    isVideoFile,
-    showVideo,
-    hasBackgroundImage: !!backgroundImageUrl
-  });
-
   // Process subtitles based on line threshold
   const processedLyrics = useMemo(() => {
     if (!lyrics) {
@@ -116,6 +108,7 @@ export const SubtitledVideoContent: React.FC<Props> = ({
         {showVideo ? (
           <Video
             src={audioUrl}
+            volume={(metadata.originalAudioVolume || 100) / 100}
             style={{
               width: '100%',
               height: '100%',
@@ -184,8 +177,8 @@ export const SubtitledVideoContent: React.FC<Props> = ({
         </div>
 
         {/* Audio tracks - only add separate audio if not using video (video already includes audio) */}
-        {!showVideo && <Audio src={audioUrl} volume={1} />}
-        {narrationUrl && <Audio src={narrationUrl} volume={1} />}
+        {!showVideo && <Audio src={audioUrl} volume={(metadata.originalAudioVolume || 100) / 100} />}
+        {narrationUrl && <Audio src={narrationUrl} volume={(metadata.narrationVolume || 100) / 100} />}
       </AbsoluteFill>
     </ThemeProvider>
   );
