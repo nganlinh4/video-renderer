@@ -4,24 +4,21 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { LyricEntry } from '../types';
 import { Button, Flex } from './StyledComponents';
 
-// Define the VideoType type to match the one in App.tsx
-type VideoType = 'Lyrics Video' | 'Vocal Only' | 'Instrumental Only' | 'Little Vocal';
+// Define the VideoType type for subtitled videos
+type VideoType = 'Subtitled Video';
 
 // Enhanced Props interface to support rich preview functionality
 interface Props {
   videoUrl?: string;
   audioFiles?: {
     main: File | null;
-    instrumental: File | null;
-    vocal: File | null;
-    littleVocal: File | null;
+    narration?: File | null;
   };
   lyrics?: LyricEntry[] | null;
-  albumArt?: File | null;
-  background?: { [key: string]: File | null };
+  background?: File | null;
   videoType?: VideoType;
-  artist?: string;
-  songTitle?: string;
+  title?: string;
+  description?: string;
   addToQueue?: (videoType: VideoType) => void;
   addAllVersions?: () => void;
 }
@@ -83,7 +80,7 @@ const MetadataTitle = styled.h3`
 const MetadataRow = styled.div`
   display: flex;
   margin-bottom: 0.75rem;
-  
+
   strong {
     width: 100px;
     color: var(--heading-color);
@@ -94,27 +91,26 @@ const ButtonContainer = styled.div`
   display: flex;
   gap: 1rem;
   margin-top: 1rem;
-  
+
   @media (max-width: 768px) {
     flex-direction: column;
   }
 `;
 
-const VideoPreview: React.FC<Props> = ({ 
-  videoUrl = '', 
+const VideoPreview: React.FC<Props> = ({
+  videoUrl = '',
   audioFiles,
   lyrics,
-  albumArt,
   background,
-  videoType = 'Lyrics Video',
-  artist = '',
-  songTitle = '',
+  videoType = 'Subtitled Video',
+  title = '',
+  description = '',
   addToQueue,
   addAllVersions
 }) => {
   const { t } = useLanguage();
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  
+
   // For the actual implementation, this would involve more complex logic
   // to generate a preview image/video based on the assets
   useEffect(() => {
@@ -123,14 +119,14 @@ const VideoPreview: React.FC<Props> = ({
       setPreviewUrl(videoUrl);
       return;
     }
-    
+
     // Otherwise, we could simulate or generate a preview
     // This is just a placeholder for your actual preview generation logic
     setPreviewUrl(null);
-  }, [videoUrl, artist, songTitle, videoType, albumArt, lyrics]);
-  
+  }, [videoUrl, title, description, videoType, lyrics]);
+
   const hasAudioFile = audioFiles?.main !== null;
-  const hasRequiredData = hasAudioFile && artist && songTitle;
+  const hasRequiredData = hasAudioFile && title && description;
 
   return (
     <PreviewContainer>
@@ -149,9 +145,9 @@ const VideoPreview: React.FC<Props> = ({
                   <path d="M9.5 16V8l7 4-7 4z"/>
                 </svg>
                 <div>
-                  <h3>{artist} - {songTitle}</h3>
+                  <h3>{title}</h3>
+                  <p>{description}</p>
                   <p>{t('videoType')}: {t(videoType.toLowerCase().replace(' ', ''))}</p>
-                  <p>{t('previewDesc')}</p>
                 </div>
               </>
             ) : (
@@ -160,26 +156,26 @@ const VideoPreview: React.FC<Props> = ({
                 {!hasAudioFile && (
                   <p>{t('uploadAudioFirst')}</p>
                 )}
-                {!artist && !songTitle && (
-                  <p>{t('enterArtistAndTitle')}</p>
+                {!title && !description && (
+                  <p>{t('enterTitleAndDescription')}</p>
                 )}
               </>
             )}
           </PreviewPlaceholder>
         )}
       </VideoContainer>
-      
+
       {hasRequiredData && (
         <>
           <MetadataPreview>
             <MetadataTitle>{t('videoDetails')}</MetadataTitle>
             <MetadataRow>
-              <strong>{t('artistName')}:</strong>
-              <span>{artist}</span>
+              <strong>{t('title')}:</strong>
+              <span>{title}</span>
             </MetadataRow>
             <MetadataRow>
-              <strong>{t('songTitle')}:</strong>
-              <span>{songTitle}</span>
+              <strong>{t('description')}:</strong>
+              <span>{description}</span>
             </MetadataRow>
             <MetadataRow>
               <strong>{t('videoType')}:</strong>
@@ -190,11 +186,11 @@ const VideoPreview: React.FC<Props> = ({
               <span>
                 {audioFiles?.main ? '✓ ' + t('mainAudio') : '✗ ' + t('mainAudio')}
                 {lyrics ? ', ✓ ' + t('lyrics') : ''}
-                {albumArt ? ', ✓ ' + t('albumArt') : ''}
+                {background ? ', ✓ ' + t('background') : ''}
               </span>
             </MetadataRow>
           </MetadataPreview>
-          
+
           {addToQueue && addAllVersions && (
             <ButtonContainer>
               <Button onClick={() => addToQueue(videoType)}>

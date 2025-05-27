@@ -18,9 +18,7 @@ interface WorkspaceProps {
 // Define a local AudioFiles type that matches what we're using in the component
 interface LocalAudioFiles {
   main: File | null;
-  instrumental: File | null;
-  vocal: File | null;
-  littleVocal: File | null;
+  narration: File | null;
 }
 
 const Workspace: React.FC<WorkspaceProps> = ({ tabId }) => {
@@ -30,9 +28,7 @@ const Workspace: React.FC<WorkspaceProps> = ({ tabId }) => {
   // Always declare hooks at the top level, regardless of conditions
   const [audioUrls, setAudioUrls] = useState({
     main: '',
-    instrumental: '',
-    vocal: '',
-    littleVocal: ''
+    narration: ''
   });
   const [albumArtUrl, setAlbumArtUrl] = useState<string>('');
   const [backgroundUrls, setBackgroundUrls] = useState<{[key: string]: string}>({});
@@ -51,13 +47,11 @@ const Workspace: React.FC<WorkspaceProps> = ({ tabId }) => {
         if (url) URL.revokeObjectURL(url);
       });
 
-      const { main, instrumental, vocal, littleVocal } = workspaceData.audioFiles;
+      const { main, narration } = workspaceData.audioFiles;
 
       const newAudioUrls = {
         main: main ? URL.createObjectURL(main) : '',
-        instrumental: instrumental ? URL.createObjectURL(instrumental) : '',
-        vocal: vocal ? URL.createObjectURL(vocal) : '',
-        littleVocal: littleVocal ? URL.createObjectURL(littleVocal) : ''
+        narration: narration ? URL.createObjectURL(narration) : ''
       };
 
       setAudioUrls(newAudioUrls);
@@ -148,10 +142,9 @@ const Workspace: React.FC<WorkspaceProps> = ({ tabId }) => {
   const handleFilesChange = async (
     newAudioFiles: AudioFiles,
     newLyrics: LyricEntry[] | null,
-    newAlbumArtFile: File | null,
-    newBackgroundFiles: {[key: string]: File | null},
+    newBackgroundFile: File | null,
     newMetadata: VideoMetadata,
-    newLyricsFile: File | null  // Add lyricsFile parameter
+    newLyricsFile: File | null
   ) => {
     let newDuration = durationInSeconds;
 
@@ -169,26 +162,23 @@ const Workspace: React.FC<WorkspaceProps> = ({ tabId }) => {
     // Ensure we have a consistent format for audioFiles matching our local definition
     const normalizedAudioFiles: LocalAudioFiles = {
       main: newAudioFiles.main,
-      instrumental: newAudioFiles.instrumental || null,
-      vocal: newAudioFiles.vocal || null,
-      littleVocal: newAudioFiles.littleVocal || null
+      narration: newAudioFiles.narration || null
     };
 
     // Update the tab content all at once to ensure state consistency
     updateTabContent(tabId, {
       audioFiles: normalizedAudioFiles,
       lyrics: newLyrics,
-      lyricsFile: newLyricsFile,  // Add lyricsFile to the update
-      albumArtFile: newAlbumArtFile,
-      backgroundFiles: newBackgroundFiles,
+      lyricsFile: newLyricsFile,
+      backgroundFiles: newBackgroundFile ? { 'Subtitled Video': newBackgroundFile } : {},
       metadata: newMetadata,
       durationInSeconds: newDuration
     });
 
-    // Also update the tab name if artist and song title are provided
-    if (newMetadata.artist && newMetadata.songTitle) {
+    // Also update the tab name if title is provided
+    if (newMetadata.title) {
       updateTabContent(tabId, {
-        name: `${newMetadata.artist} - ${newMetadata.songTitle}`
+        name: newMetadata.title
       });
     }
   };
@@ -289,14 +279,11 @@ const Workspace: React.FC<WorkspaceProps> = ({ tabId }) => {
             initialValues={{
               audioFiles: {
                 main: audioFiles.main,
-                instrumental: audioFiles.instrumental || null,
-                vocal: audioFiles.vocal || null,
-                littleVocal: audioFiles.littleVocal || null
+                narration: audioFiles.narration || null
               },
               lyrics,
-              lyricsFile: workspaceData.lyricsFile,  // Add lyricsFile to initialValues
-              albumArtFile,
-              backgroundFiles,
+              lyricsFile: workspaceData.lyricsFile,
+              backgroundFile: backgroundFiles['Subtitled Video'] || null,
               metadata
             }}
           />

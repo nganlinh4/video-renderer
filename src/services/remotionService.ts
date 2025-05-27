@@ -1,5 +1,5 @@
 import { LyricEntry } from '../types';
-import { getAnalysisUrl, analyzeAudio } from '../utils/audioAnalyzer';
+import { analyzeAudio } from '../utils/audioAnalyzer';
 
 const SERVER_URL = 'http://localhost:3003';
 

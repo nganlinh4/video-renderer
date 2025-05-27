@@ -14,7 +14,7 @@ const QueueItem = styled(Card)`
   padding: 1.25rem;
   background: var(--card-background);
   transition: all 0.3s ease;
-  
+
   &:hover {
     transform: translateY(-3px);
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
@@ -34,7 +34,7 @@ const QueueItemTitle = styled.div`
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  
+
   small {
     opacity: 0.7;
     font-weight: normal;
@@ -63,11 +63,11 @@ const RemoveButton = styled.button`
   align-items: center;
   font-size: 0.9rem;
   transition: all 0.2s ease;
-  
+
   &:hover {
     background-color: var(--error-background);
   }
-  
+
   svg {
     margin-right: 0.25rem;
   }
@@ -75,7 +75,7 @@ const RemoveButton = styled.button`
 
 const StopButton = styled(RemoveButton)`
   color: var(--warning-color);
-  
+
   &:hover {
     background-color: var(--warning-background, rgba(255, 152, 0, 0.1));
   }
@@ -88,13 +88,13 @@ const EmptyQueue = styled.div`
   opacity: 0.7;
   border: 2px dashed var(--border-color);
   border-radius: 8px;
-  
+
   svg {
     font-size: 2.5rem;
     margin-bottom: 1rem;
     color: var(--border-color);
   }
-  
+
   p {
     margin: 0.5rem 0;
   }
@@ -103,7 +103,7 @@ const EmptyQueue = styled.div`
 const ClearQueueButton = styled(Button)`
   margin-bottom: 1rem;
   background: linear-gradient(135deg, #f44336, #d32f2f);
-  
+
   &:hover {
     background: linear-gradient(135deg, #d32f2f, #b71c1c);
   }
@@ -174,7 +174,7 @@ const QueueManager: React.FC = () => {
     // Maintain original order for pending items
     return queueItems.indexOf(a) - queueItems.indexOf(b);
   });
-  
+
   // Convert queue items to display data
   const queue = sortedQueueItems.map((item: QueueItemType) => {
     // Determine the actual display status
@@ -203,18 +203,18 @@ const QueueManager: React.FC = () => {
       id: item.id,
       status: displayStatus,
       progress: displayProgress,
-      artist: item.metadata.artist,
-      songTitle: item.metadata.songTitle,
+      title: item.metadata.title,
+      description: item.metadata.description,
       videoType: item.metadata.videoType,
       outputPath: item.result?.[item.metadata.videoType],
       errorMessage: item.error
     };
   });
-  
+
   const removeQueueItem = (id: string) => {
     removeFromQueue(id);
   };
-  
+
   const clearQueue = () => {
     // Only remove non-processing items
     queueItems.forEach((item: QueueItemType) => {
@@ -233,7 +233,7 @@ const QueueManager: React.FC = () => {
       default: return 'default';
     }
   };
-  
+
   const getStatusColor = (status: QueueItemStatus) => {
     switch(status) {
       case 'pending': return 'var(--accent-color)';
@@ -254,7 +254,7 @@ const QueueManager: React.FC = () => {
           </ClearQueueButton>
         </Flex>
       )}
-      
+
       {queue.length === 0 ? (
         <EmptyQueue>
           <QueueEmptyIcon />
@@ -266,14 +266,14 @@ const QueueManager: React.FC = () => {
           <QueueItem key={item.id}>
             <QueueItemHeader>
               <QueueItemTitle>
-                {item.artist} - {item.songTitle}
+                {item.title}
                 <small>({item.videoType})</small>
               </QueueItemTitle>
               <Badge variant={getBadgeVariant(item.status)}>
                 {t(item.status)}
               </Badge>
             </QueueItemHeader>
-            
+
             {(item.status === 'processing' || item.status === 'pending') && (
               <QueueItemProgressWrapper>
                 <ProgressBar progress={item.progress * 100} color={getStatusColor(item.status)} />
@@ -282,10 +282,10 @@ const QueueManager: React.FC = () => {
                 </div>
               </QueueItemProgressWrapper>
             )}
-            
+
             {item.errorMessage && (
-              <div style={{ 
-                backgroundColor: 'var(--error-background)', 
+              <div style={{
+                backgroundColor: 'var(--error-background)',
                 color: 'var(--error-color)',
                 padding: '0.75rem',
                 borderRadius: '4px',
@@ -295,7 +295,7 @@ const QueueManager: React.FC = () => {
                 Error: {item.errorMessage}
               </div>
             )}
-            
+
             <QueueItemActions>
               {item.status !== 'processing' && (
                 <Tooltip data-tooltip="Remove from queue">

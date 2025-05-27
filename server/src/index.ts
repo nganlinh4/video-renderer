@@ -111,40 +111,9 @@ function verifyServerAssets(
   // Verify audio files based on video type
   let audioToUse: string | undefined;
 
-  switch (videoType) {
-    case 'Vocal Only':
-      audioToUse = vocalUrl || audioUrl;
-      console.log(vocalUrl
-        ? `✓ SERVER using vocal track for Vocal Only: ${vocalUrl}`
-        : `⚠️ SERVER WARNING: Using main audio as fallback for Vocal Only: ${audioUrl}`);
-      break;
-
-    case 'Instrumental Only':
-      audioToUse = instrumentalUrl || audioUrl;
-      console.log(instrumentalUrl
-        ? `✓ SERVER using instrumental track for Instrumental Only: ${instrumentalUrl}`
-        : `⚠️ SERVER WARNING: Using main audio as fallback for Instrumental Only: ${audioUrl}`);
-      break;
-
-    case 'Little Vocal':
-      if (littleVocalUrl) {
-        audioToUse = littleVocalUrl;
-        console.log(`✓ SERVER using pre-mixed little vocal track: ${littleVocalUrl}`);
-      } else if (instrumentalUrl && vocalUrl) {
-        console.log(`✓ SERVER using instrumental and vocal tracks for Little Vocal mix:`);
-        console.log(`  - Instrumental: ${instrumentalUrl}`);
-        console.log(`  - Vocal: ${vocalUrl}`);
-      } else {
-        audioToUse = audioUrl;
-        console.log(`⚠️ SERVER WARNING: Using main audio as fallback for Little Vocal: ${audioUrl}`);
-      }
-      break;
-
-    default: // Lyrics Video
-      audioToUse = audioUrl;
-      console.log(`✓ SERVER using main audio track for Lyrics Video: ${audioUrl}`);
-      break;
-  }
+  // For subtitled videos, always use the main audio track
+  audioToUse = audioUrl;
+  console.log(`✓ SERVER using main audio track for Subtitled Video: ${audioUrl}`);
 
   // Verify background image
   const backgroundForType = backgroundImagesMap[videoType];

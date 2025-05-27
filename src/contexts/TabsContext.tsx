@@ -45,18 +45,16 @@ export function createEmptyWorkspace(id: string, name: string): WorkspaceTab {
   $active: false,  // Change active to $active
   audioFiles: {
     main: null,
-    instrumental: null,
-    vocal: null,
-    littleVocal: null
+    narration: null
   },
   lyrics: null,
   lyricsFile: null,  // Add this property
   albumArtFile: null,
   backgroundFiles: {},
   metadata: {
-    artist: '',
-    songTitle: '',
-    videoType: 'Lyrics Video',
+    title: '',
+    description: '',
+    videoType: 'Subtitled Video',
     lyricsLineThreshold: 41,
     metadataPosition: -155,
     metadataWidth: 450,

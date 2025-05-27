@@ -45,10 +45,10 @@ export class AudioAnalyzer {
     const startSample = Math.floor(startTime * sampleRate);
     const numSamples = Math.floor(duration * sampleRate);
     const channelData = this.audioBuffer.getChannelData(0);
-    
+
     let sum = 0;
     let count = 0;
-    
+
     for (let i = 0; i < numSamples; i++) {
       const sampleIndex = startSample + i;
       if (sampleIndex >= 0 && sampleIndex < channelData.length) {
@@ -56,7 +56,7 @@ export class AudioAnalyzer {
         count++;
       }
     }
-    
+
     return count > 0 ? sum / count : 0;
   }
 
@@ -65,7 +65,7 @@ export class AudioAnalyzer {
 
     const duration = Math.ceil(this.audioBuffer.duration);
     const volumeData: number[] = [];
-    
+
     // Instead of gradual increase, add padding with actual audio data
     // For leading padding, repeat the first few seconds of audio (or silence if very quiet)
     const firstFewSeconds: number[] = [];
@@ -73,36 +73,36 @@ export class AudioAnalyzer {
       const volume = this.getAverageVolume(second, 1.0);
       firstFewSeconds.push(volume);
     }
-    
+
     // Calculate average of first few seconds to use as padding
-    const avgFirstFewSeconds = firstFewSeconds.length > 0 
-      ? firstFewSeconds.reduce((a, b) => a + b, 0) / firstFewSeconds.length 
+    const avgFirstFewSeconds = firstFewSeconds.length > 0
+      ? firstFewSeconds.reduce((a, b) => a + b, 0) / firstFewSeconds.length
       : 0;
-    
+
     // Add consistent padding at beginning
     const paddingSize = 40;
     for (let i = 0; i < paddingSize; i++) {
       // For initial padding, use the actual audio data or a consistent low value
       volumeData.push(avgFirstFewSeconds || 0.05);
     }
-    
+
     // Calculate average volume for each second of actual audio
     for (let second = 0; second < duration; second++) {
       const volume = this.getAverageVolume(second, 1.0);
       volumeData.push(volume);
     }
-    
+
     // Calculate average of last few seconds for trailing padding
     const lastFewSeconds: number[] = [];
     for (let second = Math.max(0, duration - 5); second < duration; second++) {
       const volume = this.getAverageVolume(second, 1.0);
       lastFewSeconds.push(volume);
     }
-    
-    const avgLastFewSeconds = lastFewSeconds.length > 0 
-      ? lastFewSeconds.reduce((a, b) => a + b, 0) / lastFewSeconds.length 
+
+    const avgLastFewSeconds = lastFewSeconds.length > 0
+      ? lastFewSeconds.reduce((a, b) => a + b, 0) / lastFewSeconds.length
       : 0;
-    
+
     // Add trailing padding - match the audio's actual ending
     for (let i = 0; i < paddingSize; i++) {
       volumeData.push(avgLastFewSeconds || 0.05);
@@ -124,27 +124,27 @@ export class AudioAnalyzer {
 // Function to manually analyze audio
 export const analyzeAudio = async (audioUrl: string): Promise<number[]> => {
   if (!audioUrl) return [];
-  
+
   // Return cached results if available
   if (globalAnalyzerCache[audioUrl]) {
     console.log(`Using cached analysis for ${audioUrl}`);
     return globalAnalyzerCache[audioUrl].volumeData;
   }
-  
+
   console.log(`Analyzing new audio file: ${audioUrl}`);
   // Otherwise perform analysis
   const analyzer = new AudioAnalyzer();
   try {
     await analyzer.loadAudio(audioUrl);
     const volumeData = await analyzer.analyzeFullAudio();
-    
+
     // Cache the results globally with a timestamp
     globalAnalyzerCache[audioUrl] = {
       audioUrl,
       volumeData,
       timestamp: Date.now()
     };
-    
+
     return volumeData;
   } catch (err) {
     console.error('Error analyzing audio:', err);
@@ -154,20 +154,9 @@ export const analyzeAudio = async (audioUrl: string): Promise<number[]> => {
   }
 };
 
-// Function to get the correct URL for server-side analysis
-export const getAnalysisUrl = (videoType: string, mainUrl: string, vocalUrl?: string, 
-  instrumentalUrl?: string, littleVocalUrl?: string): string => {
-  
-  switch(videoType) {
-    case 'Vocal Only':
-      return vocalUrl || mainUrl;
-    case 'Instrumental Only':
-      return instrumentalUrl || mainUrl;
-    case 'Little Vocal':
-      return littleVocalUrl || mainUrl;
-    default:
-      return mainUrl;
-  }
+// Function to get the correct URL for server-side analysis (simplified for subtitled videos)
+export const getAnalysisUrl = (mainUrl: string): string => {
+  return mainUrl;
 }
 
 // Hook for components that need volume data
@@ -175,7 +164,7 @@ export const useAudioAnalyzer = (audioUrl: string | undefined) => {
   const [volumeData, setVolumeData] = useState<number[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  
+
   useEffect(() => {
     if (!audioUrl) {
       setVolumeData([]);
@@ -189,7 +178,7 @@ export const useAudioAnalyzer = (audioUrl: string | undefined) => {
 
     const fetchData = async () => {
       setIsAnalyzing(true);
-      
+
       try {
         // Use cached data if available
         if (globalAnalyzerCache[audioUrl]) {
@@ -197,11 +186,11 @@ export const useAudioAnalyzer = (audioUrl: string | undefined) => {
           setIsAnalyzing(false);
           return;
         }
-        
+
         // If no cache, use consistent dummy data during analysis
         const dummyData = createDummyData();
         setVolumeData(dummyData);
-        
+
         // Try to perform analysis in the background
         try {
           const data = await analyzeAudio(audioUrl);
@@ -220,7 +209,7 @@ export const useAudioAnalyzer = (audioUrl: string | undefined) => {
         setIsAnalyzing(false);
       }
     };
-    
+
     fetchData();
   }, [audioUrl]);
 
@@ -233,8 +222,8 @@ export const useAudioAnalyzer = (audioUrl: string | undefined) => {
       const second = Math.max(0, Math.floor(timeInSeconds));
       // Add padding offset and return volume data or fallback value
       const paddedIndex = second + 40;
-      return paddedIndex >= 0 && paddedIndex < volumeData.length 
-        ? volumeData[paddedIndex] 
+      return paddedIndex >= 0 && paddedIndex < volumeData.length
+        ? volumeData[paddedIndex]
         : 0.05;
     }
   };

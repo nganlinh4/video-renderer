@@ -25,9 +25,9 @@ interface LanguageContextType {
 export const translations: Translations = {
   // Common
   appTitle: {
-    en: 'Lyrics Video Maker',
-    ko: '가사 비디오 메이커',
-    vi: 'Trình tạo Video Lời bài hát'
+    en: 'Subtitled Video Maker',
+    ko: '자막 비디오 메이커',
+    vi: 'Trình tạo Video Phụ đề'
   },
   theme: {
     en: 'Theme',
@@ -181,65 +181,40 @@ export const translations: Translations = {
     ko: '비디오 타입',
     vi: 'Loại video'
   },
-  lyricsVideo: {
-    en: 'Lyrics Video',
-    ko: '가사 비디오',
-    vi: 'Video lời bài hát'
+  subtitledVideo: {
+    en: 'Subtitled Video',
+    ko: '자막 비디오',
+    vi: 'Video phụ đề'
   },
-  vocalOnly: {
-    en: 'Vocal Only',
-    ko: '보컬만',
-    vi: 'Chỉ giọng hát'
+  subtitledvideo: {
+    en: 'Subtitled Video',
+    ko: '자막 비디오',
+    vi: 'Video phụ đề'
   },
-  instrumentalOnly: {
-    en: 'Instrumental Only',
-    ko: '반주만',
-    vi: 'Chỉ nhạc nền'
+  title: {
+    en: 'Title',
+    ko: '제목',
+    vi: 'Tiêu đề'
   },
-  littleVocalVideo: {
-    en: 'Little Vocal',
-    ko: '작은 보컬',
-    vi: 'Giọng hát nhỏ'
+  description: {
+    en: 'Description',
+    ko: '설명',
+    vi: 'Mô tả'
   },
-  lyricsvideo: { // Assuming these lowercase keys are intended
-    en: 'Lyrics Video',
-    ko: '가사 비디오',
-    vi: 'Video lời bài hát'
-  },
-  vocalonly: {
-    en: 'Vocal Only',
-    ko: '보컬만',
-    vi: 'Chỉ giọng hát'
-  },
-  instrumentalonly: {
-    en: 'Instrumental Only',
-    ko: '반주만',
-    vi: 'Chỉ nhạc nền'
-  },
-  littlevocal: {
-    en: 'Little Vocal',
-    ko: '작은 보컬',
-    vi: 'Giọng hát nhỏ'
+  enterTitleAndDescription: {
+    en: 'Enter title and description',
+    ko: '제목과 설명을 입력하세요',
+    vi: 'Nhập tiêu đề và mô tả'
   },
   mainAudioFile: {
     en: 'Main Audio File (MP3, WAV)',
     ko: '메인 오디오 파일 (MP3, WAV)',
     vi: 'Tệp âm thanh chính (MP3, WAV)'
   },
-  instrumentalAudio: {
-    en: 'Instrumental Audio (Optional)',
-    ko: '반주 오디오 (선택사항)',
-    vi: 'Âm thanh nhạc nền (Tùy chọn)'
-  },
-  vocalAudio: {
-    en: 'Vocal Audio (Optional)',
-    ko: '보컬 오디오 (선택사항)',
-    vi: 'Âm thanh giọng hát (Tùy chọn)'
-  },
-  littleVocalAudio: {
-    en: 'Little Vocal Audio (Optional)',
-    ko: '작은 보컬 오디오 (선택사항)',
-    vi: 'Âm thanh giọng hát nhỏ (Tùy chọn)'
+  narrationAudio: {
+    en: 'Narration Audio (Optional)',
+    ko: '내레이션 오디오 (선택사항)',
+    vi: 'Âm thanh thuyết minh (Tùy chọn)'
   },
   lyricsFile: {
     en: 'Lyrics File (JSON)',

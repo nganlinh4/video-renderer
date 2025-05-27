@@ -2,7 +2,7 @@ import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import { AbsoluteFill, useCurrentFrame, interpolate, Audio, useVideoConfig, Easing, continueRender, delayRender, Sequence } from 'remotion';
 import { LyricEntry, VideoMetadata } from '../types';
 import styled, { ThemeProvider } from 'styled-components';
-import { useAudioAnalyzer, getAnalysisUrl } from '../utils/audioAnalyzer';
+import { useAudioAnalyzer } from '../utils/audioAnalyzer';
 
 // Define Inter font directly without using @remotion/google-fonts
 const FONT_FAMILY = "'Inter', sans-serif";
@@ -133,13 +133,7 @@ export interface Props {
   durationInSeconds: number;
   albumArtUrl?: string;
   backgroundImageUrl?: string;
-  backgroundImagesMap?: {
-    [key in VideoMetadata['videoType']]?: string;
-  };
   metadata: VideoMetadata;
-  instrumentalUrl?: string;
-  vocalUrl?: string;
-  littleVocalUrl?: string;
 }
 
 // Utility function to split text into roughly equal parts
@@ -209,14 +203,10 @@ interface AudioConfig {
 
 export const LyricsVideoContent: React.FC<Props> = ({
   audioUrl,
-  instrumentalUrl,
-  vocalUrl,
-  littleVocalUrl,
   lyrics,
   durationInSeconds,
   albumArtUrl,
   backgroundImageUrl,
-  backgroundImagesMap = {},
   metadata
 }) => {
   const frame = useCurrentFrame();
@@ -261,45 +251,17 @@ export const LyricsVideoContent: React.FC<Props> = ({
   }, [lyrics, metadata.lyricsLineThreshold]);
 
   const getAudioConfig = useCallback(() => {
-    // Return appropriate audio configuration based on video type
-    switch (metadata.videoType) {
-      case 'Vocal Only':
-        // For Vocal Only, use vocal track if available, otherwise use main audio
-        return vocalUrl ? [{ src: vocalUrl, volume: 1 }] : (audioUrl ? [{ src: audioUrl, volume: 1 }] : []);
+    // For subtitled videos, use main audio track
+    return audioUrl ? [{ src: audioUrl, volume: 1 }] : [];
+  }, [audioUrl]);
 
-      case 'Instrumental Only':
-        // For Instrumental Only, use instrumental track if available, otherwise use main audio
-        return instrumentalUrl ? [{ src: instrumentalUrl, volume: 1 }] : (audioUrl ? [{ src: audioUrl, volume: 1 }] : []);
-
-      case 'Little Vocal':
-        if (littleVocalUrl) {
-          // Use pre-mixed little vocal track if available
-          return [{ src: littleVocalUrl, volume: 1 }];
-        } else if (instrumentalUrl && vocalUrl) {
-          // Otherwise mix instrumental and vocal tracks
-          return [
-            { src: instrumentalUrl, volume: 1 },
-            { src: vocalUrl, volume: 0.12 }
-          ];
-        } else {
-          // Fallback to main audio
-          return audioUrl ? [{ src: audioUrl, volume: 1 }] : [];
-        }
-
-      case 'Lyrics Video':
-      default:
-        // For standard lyrics video, use main audio track
-        return audioUrl ? [{ src: audioUrl, volume: 1 }] : [];
-    }
-  }, [metadata.videoType, audioUrl, instrumentalUrl, vocalUrl, littleVocalUrl]);
-
-  // Memoize metadata component - move to above album art and center align
+  // Memoize metadata component - show title and description for subtitled videos
   const MetadataDisplay = useMemo(() => (
     <MetadataContainer>
-      <ArtistName>{metadata.artist}</ArtistName>
-      <SongTitle>{metadata.songTitle}</SongTitle>
+      <ArtistName>{metadata.title}</ArtistName>
+      <SongTitle>{metadata.description}</SongTitle>
     </MetadataContainer>
-  ), [metadata.artist, metadata.songTitle]);
+  ), [metadata.title, metadata.description]);
 
   // Move accentColor state up to parent component
   const [accentColor, setAccentColor] = useState<{ normal: number[], bright: number[] }>({
@@ -348,15 +310,10 @@ export const LyricsVideoContent: React.FC<Props> = ({
     };
   }, [frame, fps, metadata]);
 
-  // Get the correct background image for the current video type
+  // Get the background image for subtitled video
   const currentBackgroundImage = useMemo(() => {
-    // First check if we have a specific background for this video type in the map
-    if (backgroundImagesMap && backgroundImagesMap[metadata.videoType]) {
-      return backgroundImagesMap[metadata.videoType];
-    }
-    // Fall back to the single backgroundImageUrl if provided
     return backgroundImageUrl || '';
-  }, [backgroundImagesMap, metadata.videoType, backgroundImageUrl]);
+  }, [backgroundImageUrl]);
 
   // Find the active lyric index - update to use processedLyrics
   const activeLyricIndex = useMemo(() => {
@@ -504,14 +461,8 @@ export const LyricsVideoContent: React.FC<Props> = ({
     const { fps } = useVideoConfig();
 
     const audioUrlToAnalyze = useMemo(() => {
-      return getAnalysisUrl(
-        metadata.videoType,
-        audioUrl,
-        vocalUrl,
-        instrumentalUrl,
-        littleVocalUrl
-      );
-    }, [metadata.videoType, audioUrl, vocalUrl, instrumentalUrl, littleVocalUrl]);
+      return audioUrl;
+    }, [audioUrl]);
 
     const { isAnalyzing, error, volumeData } = useAudioAnalyzer(audioUrlToAnalyze);
 
@@ -670,13 +621,13 @@ export const LyricsVideoContent: React.FC<Props> = ({
         <div style={{ position: 'relative', width: '100%', height: '100%', zIndex: 2 }}>
           {/* Centered Metadata above album art */}
           <CenteredMetadataContainer>
-            <ArtistName>{metadata.artist}</ArtistName>
+            <ArtistName>{metadata.title}</ArtistName>
             <SongTitle
               style={{
                 backgroundPosition: `${titleGradientPosition}% center`
               }}
             >
-              {metadata.songTitle}
+              {metadata.description}
             </SongTitle>
           </CenteredMetadataContainer>
 
@@ -831,26 +782,8 @@ export const LyricsVideoContent: React.FC<Props> = ({
           </div>
         </div>
 
-        {/* Add Audio components based on video type */}
-        {metadata.videoType === 'Little Vocal' ? (
-          littleVocalUrl ? (
-            // Use pre-mixed little vocal track if available
-            <Audio src={littleVocalUrl} volume={1} />
-          ) : (
-            // Otherwise mix instrumental and vocal
-            <>
-              {instrumentalUrl && <Audio src={instrumentalUrl} volume={1} />}
-              {vocalUrl && <Audio src={vocalUrl} volume={0.12} />}
-            </>
-          )
-        ) : metadata.videoType === 'Vocal Only' ? (
-          <Audio src={vocalUrl || audioUrl} volume={1} />
-        ) : metadata.videoType === 'Instrumental Only' ? (
-          <Audio src={instrumentalUrl || audioUrl} volume={1} />
-        ) : (
-          // Default Lyrics Video case
-          <Audio src={audioUrl} volume={1} />
-        )}
+        {/* Add Audio component for subtitled video */}
+        <Audio src={audioUrl} volume={1} />
 
         {/* Overlay effects layer */}
         <div

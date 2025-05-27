@@ -7,12 +7,9 @@ export interface QueueItem {
   audioFile: File;
   lyrics: LyricEntry[];
   durationInSeconds: number;
-  albumArtFile?: File | null;
   backgroundFiles: { [key: string]: File | null };
   metadata: VideoMetadata;
-  vocalFile?: File | null;
-  instrumentalFile?: File | null;
-  littleVocalFile?: File | null;
+  narrationFile?: File | null;
   status: 'pending' | 'processing' | 'complete' | 'error';
   progress: number;
   error?: string;
@@ -47,7 +44,7 @@ export const QueueProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       progress: 0,
       result: {}
     };
-    
+
     setQueue(prevQueue => [...prevQueue, newItem]);
   };
 
@@ -63,8 +60,8 @@ export const QueueProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   };
 
   const updateQueueItem = (id: string, updates: Partial<QueueItem>) => {
-    setQueue(prevQueue => 
-      prevQueue.map(item => 
+    setQueue(prevQueue =>
+      prevQueue.map(item =>
         item.id === id ? { ...item, ...updates } : item
       )
     );
