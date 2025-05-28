@@ -11,7 +11,7 @@ process.env.REMOTION_CHROME_MODE = "chrome-for-testing";
 process.env.REMOTION_GL = "vulkan";
 
 const app = express();
-const port = process.env.PORT || 3003;
+const port = process.env.PORT || 3020;
 
 // Ensure directories exist
 const uploadsDir = path.join(__dirname, '../uploads');
@@ -100,35 +100,18 @@ app.post('/api/clear-cache', (req, res) => {
 function verifyServerAssets(
   videoType: string,
   audioUrl: string,
-  instrumentalUrl?: string,
-  vocalUrl?: string,
-  littleVocalUrl?: string,
-  backgroundImagesMap: any = {},
-  backgroundImageUrl?: string
+  narrationUrl?: string
 ) {
   console.log(`\n=== SERVER-SIDE VERIFICATION for ${videoType} render ===`);
 
-  // Verify audio files based on video type
-  let audioToUse: string | undefined;
-
   // For subtitled videos, always use the main audio track
-  audioToUse = audioUrl;
   console.log(`✓ SERVER using main audio track for Subtitled Video: ${audioUrl}`);
 
-  // Verify background image
-  const backgroundForType = backgroundImagesMap[videoType];
-  if (backgroundForType) {
-    console.log(`✓ SERVER using specific background for ${videoType}: ${backgroundForType}`);
-  } else if (backgroundImageUrl) {
-    console.log(`✓ SERVER using default background: ${backgroundImageUrl}`);
-  } else {
-    console.log(`ℹ️ SERVER: No background image for ${videoType}. Using solid color.`);
+  if (narrationUrl) {
+    console.log(`✓ SERVER using narration audio track: ${narrationUrl}`);
   }
 
   console.log('=== SERVER VERIFICATION COMPLETE ===\n');
-
-  // Return the verified audio to use (for future implementation)
-  return audioToUse;
 }
 
 // Render video endpoint
@@ -148,21 +131,13 @@ app.post('/render', async (req, res) => {
       audioFile,
       lyrics,
       durationInSeconds,
-      backgroundImageUrl,
-      albumArtUrl,
-      instrumentalUrl,
-      vocalUrl,
-      littleVocalUrl,
-      backgroundImagesMap = {},
       metadata = {
-        title: 'Untitled Video',
-        description: 'No description',
         videoType: 'Subtitled Video',
         resolution: '2K',
         frameRate: 60,
-        lyricsLineThreshold: 41,
-        metadataPosition: -155,
-        metadataWidth: 450
+        subtitleLineThreshold: 41,
+        originalAudioVolume: 100,
+        narrationVolume: 100
       },
       narrationUrl
     } = req.body;
@@ -182,29 +157,14 @@ app.post('/render', async (req, res) => {
     const width = resolution === '2K' ? 2560 : 1920;
     const height = resolution === '2K' ? 1440 : 1080;
 
-    const outputFile = `lyrics-video-${Date.now()}.mp4`;
+    const outputFile = `subtitle-video-${Date.now()}.mp4`;
     const outputPath = path.join(outputDir, outputFile);
 
     // Create URLs that can be accessed via HTTP instead of file:// protocol
     const audioUrl = `http://localhost:${port}/uploads/${audioFile}`;
 
     // Perform server-side verification before rendering
-    console.log(`\n=== Verifying assets for ${metadata.videoType} render ===`);
-    console.log(`Main Audio: ${audioUrl}`);
-
-    if (narrationUrl) {
-      console.log(`Narration Audio: ${narrationUrl}`);
-    } else {
-      console.log('No narration audio provided');
-    }
-
-    if (backgroundImageUrl) {
-      console.log(`Background Image: ${backgroundImageUrl}`);
-    } else {
-      console.log('No background image provided');
-    }
-
-    console.log('=== Verification complete ===\n');
+    verifyServerAssets(metadata.videoType, audioUrl, narrationUrl);
 
     // Add a small delay after verification to ensure resources are ready
     await new Promise(resolve => setTimeout(resolve, 1000));
@@ -237,13 +197,8 @@ app.post('/render', async (req, res) => {
         audioUrl: audioUrl,
         lyrics,
         durationInSeconds,
-        albumArtUrl,
-        backgroundImageUrl,
-        backgroundImagesMap, // Include backgroundImagesMap here
         metadata,
-        instrumentalUrl,
-        vocalUrl,
-        littleVocalUrl
+        narrationUrl
       }
     });
     console.log('Available compositions:', compositions.map(c => c.id));
@@ -255,13 +210,8 @@ app.post('/render', async (req, res) => {
         audioUrl: audioUrl,
         lyrics,
         durationInSeconds,
-        albumArtUrl,
-        backgroundImageUrl,
-        backgroundImagesMap, // Include backgroundImagesMap here
         metadata,
-        instrumentalUrl,
-        vocalUrl,
-        littleVocalUrl
+        narrationUrl
       },
     });
 
@@ -291,7 +241,6 @@ app.post('/render', async (req, res) => {
           audioUrl: audioUrl,
           lyrics,
           durationInSeconds,
-          backgroundImageUrl,
           metadata,
           narrationUrl
         },
@@ -332,7 +281,6 @@ app.post('/render', async (req, res) => {
                 audioUrl: audioUrl,
                 lyrics,
                 durationInSeconds,
-                backgroundImageUrl,
                 metadata,
                 narrationUrl
               },

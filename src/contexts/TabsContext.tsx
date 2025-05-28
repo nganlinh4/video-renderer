@@ -7,10 +7,8 @@ export interface WorkspaceTab {
   name: string;
   $active: boolean;  // Change active to $active
   audioFiles: AudioFiles;
-  lyrics: LyricEntry[] | null;
-  lyricsFile: File | null;  // Add this property
-  albumArtFile: File | null;
-  backgroundFiles: { [key: string]: File | null };
+  subtitles: LyricEntry[] | null; // Renamed from lyrics
+  subtitlesFile: File | null;  // Renamed from lyricsFile
   metadata: VideoMetadata;
   durationInSeconds: number;
   videoPath: string;
@@ -47,15 +45,11 @@ export function createEmptyWorkspace(id: string, name: string): WorkspaceTab {
     main: null,
     narration: null
   },
-  lyrics: null,
-  lyricsFile: null,  // Add this property
-  albumArtFile: null,
-  backgroundFiles: {},
+  subtitles: null,
+  subtitlesFile: null,
   metadata: {
     videoType: 'Subtitled Video',
-    lyricsLineThreshold: 41,
-    metadataPosition: -155,
-    metadataWidth: 450,
+    subtitleLineThreshold: 41,
     resolution: resolution as '1080p' | '2K',
     frameRate: frameRate as 30 | 60,
     originalAudioVolume: 100,
@@ -81,7 +75,7 @@ const TabsContext = createContext<TabsContextType | undefined>(undefined);
 export const TabsProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [tabs, setTabs] = useState<WorkspaceTab[]>([
     // Start with one empty workspace
-    { ...createEmptyWorkspace('tab-1', 'New Song 1'), $active: true }
+    { ...createEmptyWorkspace('tab-1', 'New Video 1'), $active: true }
   ]);
   const [activeTabId, setActiveTabId] = useState<string>('tab-1');
 
@@ -91,7 +85,7 @@ export const TabsProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   // Add a new tab
   const addTab = (name?: string) => {
     const newId = `tab-${tabs.length + 1}`;
-    const newTabName = name || `New Song ${tabs.length + 1}`;
+    const newTabName = name || `New Video ${tabs.length + 1}`;
 
     // Deactivate all existing tabs
     const updatedTabs = tabs.map(tab => ({
@@ -138,7 +132,7 @@ export const TabsProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       } else {
         // We're closing the last tab, create a new empty one
         const newId = `tab-${Date.now()}`;
-        setTabs([{ ...createEmptyWorkspace(newId, 'New Song 1'), $active: true }]);
+        setTabs([{ ...createEmptyWorkspace(newId, 'New Video 1'), $active: true }]);
         setActiveTabId(newId);
       }
     } else {

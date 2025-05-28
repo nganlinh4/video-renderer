@@ -1,7 +1,7 @@
 import { LyricEntry } from '../types';
 import { analyzeAudio } from '../utils/audioAnalyzer';
 
-const SERVER_URL = 'http://localhost:3003';
+const SERVER_URL = 'http://localhost:3020';
 
 export interface RenderProgress {
   progress: number;
@@ -12,15 +12,14 @@ export interface RenderProgress {
 }
 
 export interface RenderOptions {
-  backgroundImageUrl?: string;
   narrationUrl?: string;
   metadata?: {
     videoType: 'Subtitled Video';
     resolution?: '1080p' | '2K';
     frameRate?: 30 | 60;
-    lyricsLineThreshold?: number;
-    metadataPosition?: number;
-    metadataWidth?: number;
+    subtitleLineThreshold?: number;
+    originalAudioVolume?: number;
+    narrationVolume?: number;
   };
 }
 
@@ -34,9 +33,7 @@ export class RemotionService {
     videoType: 'Subtitled Video' as const,
     resolution: '2K' as const,
     frameRate: 60 as const,
-    lyricsLineThreshold: 41,
-    metadataPosition: -155,
-    metadataWidth: 450,
+    subtitleLineThreshold: 41,
     originalAudioVolume: 100,
     narrationVolume: 100
   };
@@ -62,9 +59,7 @@ export class RemotionService {
   private verifyRenderAssets(
     videoType: string,
     audioUrl: string,
-    additionalAudioUrls: Record<string, string | undefined>,
-    backgroundImagesMapUrls: { [key: string]: string },
-    specificBackgroundUrl?: string
+    additionalAudioUrls: Record<string, string | undefined>
   ): void {
     console.log(`\n=== Verifying assets for ${videoType} render ===`);
 
@@ -76,13 +71,6 @@ export class RemotionService {
       console.log('✓ Using narration audio track:', additionalAudioUrls.narrationUrl);
     } else {
       console.log('ℹ️ No narration audio provided');
-    }
-
-    // Verify background image
-    if (specificBackgroundUrl) {
-      console.log('✓ Using background image:', specificBackgroundUrl);
-    } else {
-      console.log('ℹ️ No background image provided. Using solid color background.');
     }
 
     console.log('=== Verification complete ===\n');
@@ -122,31 +110,8 @@ export class RemotionService {
         }
       }
 
-      // Process image uploads
-      const imagePromises = [
-        options.backgroundImageUrl && options.backgroundImageUrl.startsWith('blob:')
-          ? this.uploadFile(
-              await fetch(options.backgroundImageUrl)
-                .then(r => r.blob())
-                .then(b => new File([b], 'background.jpg')),
-              'image'
-            )
-          : Promise.resolve(undefined)
-      ];
-
-      // No need for backgroundImagesMap in subtitled videos
-      const backgroundImagesMapUrls: { [key: string]: string } = {};
-
       // Wait for all uploads to complete
-      const [audioUrl, ...imageUrls] = await Promise.all([
-        Promise.all(audioPromises),
-        Promise.all(imagePromises)
-      ]).then(([audioResults, imageResults]) => [
-        audioResults[0], // Main audio URL
-        ...imageResults // Image URLs
-      ]);
-
-      const [backgroundUrl] = imageUrls;
+      const audioUrl = await Promise.all(audioPromises).then(results => results[0]);
 
       // Ensure audioUrl is defined before using it
       if (!audioUrl) {
@@ -157,9 +122,7 @@ export class RemotionService {
       this.verifyRenderAssets(
         metadata.videoType,
         audioUrl,
-        additionalAudioUrls,
-        backgroundImagesMapUrls,
-        backgroundUrl
+        additionalAudioUrls
       );
 
       // No audio analysis needed for subtitled videos
@@ -188,7 +151,6 @@ export class RemotionService {
           audioFile: audioUrl.split('/').pop(),
           lyrics,
           durationInSeconds,
-          backgroundImageUrl: backgroundUrl,
           metadata,
           narrationUrl: additionalAudioUrls.narrationUrl
         }),

@@ -55,9 +55,7 @@ export const useUploadFormHandlers = (
 
     const metadata = {
       videoType: 'Subtitled Video',
-      lyricsLineThreshold: 41, // Kept for compatibility
-      metadataPosition: -155, // Kept for compatibility
-      metadataWidth: 800, // Kept for compatibility
+      subtitleLineThreshold: 41,
       resolution: initialValues?.metadata?.resolution || '1080p',
       frameRate: initialValues?.metadata?.frameRate || 60,
       originalAudioVolume: (initialValues?.metadata as any)?.originalAudioVolume || 100,
@@ -133,9 +131,7 @@ export const useUploadFormHandlers = (
           parsedLyrics,
           {
             videoType: 'Subtitled Video',
-            lyricsLineThreshold: 41,
-            metadataPosition: -155,
-            metadataWidth: 800,
+            subtitleLineThreshold: 41,
             resolution: initialValues?.metadata?.resolution || '1080p',
             frameRate: initialValues?.metadata?.frameRate || 60,
             originalAudioVolume: initialValues?.metadata?.originalAudioVolume || 100,
@@ -231,9 +227,7 @@ export const useUploadFormHandlers = (
               parsedLyrics,
               {
                 videoType: 'Subtitled Video',
-                lyricsLineThreshold: 41,
-                metadataPosition: -155,
-                metadataWidth: 800,
+                subtitleLineThreshold: 41,
                 resolution: initialValues?.metadata?.resolution || '1080p',
                 frameRate: initialValues?.metadata?.frameRate || 60,
                 originalAudioVolume: (initialValues?.metadata as any)?.originalAudioVolume || 100,
@@ -325,9 +319,7 @@ export const useUploadFormHandlers = (
 
       const metadata = {
         videoType: 'Subtitled Video',
-        lyricsLineThreshold: 41,
-        metadataPosition: -155,
-        metadataWidth: 800,
+        subtitleLineThreshold: 41,
         resolution: initialValues?.metadata?.resolution || '1080p',
         frameRate: initialValues?.metadata?.frameRate || 60,
         originalAudioVolume: (initialValues?.metadata as any)?.originalAudioVolume || 100,
@@ -350,9 +342,7 @@ export const useUploadFormHandlers = (
       null,
       {
         videoType: 'Subtitled Video',
-        lyricsLineThreshold: 41,
-        metadataPosition: -155,
-        metadataWidth: 800,
+        subtitleLineThreshold: 41,
         resolution: '1080p',
         frameRate: 60,
         originalAudioVolume: 100,

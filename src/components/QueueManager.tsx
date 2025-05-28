@@ -147,8 +147,6 @@ export interface QueueItemData {
   id: string;
   status: QueueItemStatus;
   progress: number;
-  artist: string;
-  songTitle: string;
   videoType: string;
   outputPath?: string;
   errorMessage?: string;

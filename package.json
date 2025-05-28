@@ -1,5 +1,5 @@
 {
-  "name": "lyrics-video-maker",
+  "name": "subtitle-video-maker",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -41,13 +41,13 @@
     "typescript": "^5.8.2"
   },
   "scripts": {
-    "start": "cross-env PORT=3002 react-scripts start",
+    "start": "cross-env PORT=3019 react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "studio": "remotion studio src/remotion/index.ts",
     "server:build": "tsc --project server/tsconfig.json",
-    "server:start": "cross-env PORT=3003 node server/dist/index.js",
+    "server:start": "cross-env PORT=3020 node server/dist/index.js",
     "server:dev": "concurrently \"npm run start\" \"npm run server:start\"",
     "postinstall": "npm run server:build"
   },

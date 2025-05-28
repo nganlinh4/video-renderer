@@ -24,18 +24,17 @@ These restrictions are in place to prevent template oversaturation and maintain 
 
 ## Features
 
-- Create lyrics videos with synchronized text
+- Create subtitled videos with synchronized text
 - Support for multiple audio tracks:
-  - Main audio
-  - Instrumental
-  - Vocal only
-  - Little vocal mix
-- Custom background images per video type
+  - Main audio/video
+  - Narration audio (optional)
+- Volume controls for audio tracks
 - Theme switching (light/dark)
 - Multi-language support
 - Tab-based workspace
 - Render queue management
 - GPU-accelerated video rendering (Vulkan)
+- Support for SRT and JSON subtitle formats
 
 ## Technologies
 
@@ -71,7 +70,7 @@ Runs on port 3002
 ```bash
 npm run server:start
 ```
-Runs on port 3003
+Runs on port 3020
 
 Alternatively, you can run both with:
 ```bash

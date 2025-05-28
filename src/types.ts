@@ -1,17 +1,18 @@
-export interface LyricEntry {
+export interface SubtitleEntry {
   start: number;
   end: number;
   text: string;
 }
+
+// Keep LyricEntry as alias for backward compatibility
+export type LyricEntry = SubtitleEntry;
 
 export type Resolution = '1080p' | '2K';
 export type FrameRate = 30 | 60;
 
 export interface VideoMetadata {
   videoType: 'Subtitled Video';
-  lyricsLineThreshold: number; // Renamed but kept for compatibility
-  metadataPosition: number; // Kept for compatibility
-  metadataWidth: number; // Width of the metadata container
+  subtitleLineThreshold: number; // Maximum characters per subtitle line
   resolution: Resolution; // Video resolution (1080p or 2K)
   frameRate: FrameRate; // Frame rate (30 or 60 fps)
   originalAudioVolume: number; // Volume for original audio/video (0-100)

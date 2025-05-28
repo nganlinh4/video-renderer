@@ -30,8 +30,6 @@ const Workspace: React.FC<WorkspaceProps> = ({ tabId }) => {
     main: '',
     narration: ''
   });
-  const [albumArtUrl, setAlbumArtUrl] = useState<string>('');
-  const [backgroundUrls, setBackgroundUrls] = useState<{[key: string]: string}>({});
 
   // Check if this workspace is active
   const isActiveWorkspace = activeWorkspace?.id === tabId;
@@ -78,51 +76,7 @@ const Workspace: React.FC<WorkspaceProps> = ({ tabId }) => {
     };
   }, [isActiveWorkspace, workspaceData?.audioFiles]);  // Remove audioUrls from dependencies
 
-  // Separate effect for album art
-  useEffect(() => {
-    if (!isActiveWorkspace || !workspaceData) return;
 
-    const albumArtFile = workspaceData.albumArtFile;
-
-    if (albumArtFile) {
-      const url = URL.createObjectURL(albumArtFile);
-      setAlbumArtUrl(url);
-
-      return () => {
-        URL.revokeObjectURL(url);
-      };
-    } else {
-      setAlbumArtUrl('');
-    }
-  }, [isActiveWorkspace, workspaceData?.albumArtFile]);
-
-  // Separate effect for background images
-  useEffect(() => {
-    if (!isActiveWorkspace || !workspaceData) return;
-
-    // Clean up previous URLs
-    Object.values(backgroundUrls).forEach(url => {
-      URL.revokeObjectURL(url);
-    });
-
-    const newBackgroundUrls: {[key: string]: string} = {};
-
-    // Create URLs for each video type if a background is available
-    Object.entries(workspaceData.backgroundFiles).forEach(([videoType, file]) => {
-      if (file) {
-        newBackgroundUrls[videoType] = URL.createObjectURL(file);
-      }
-    });
-
-    setBackgroundUrls(newBackgroundUrls);
-
-    // Cleanup function
-    return () => {
-      Object.values(newBackgroundUrls).forEach(url => {
-        URL.revokeObjectURL(url);
-      });
-    };
-  }, [isActiveWorkspace, workspaceData?.backgroundFiles]);
 
   // If this workspace is not active, don't render it
   if (!isActiveWorkspace || !workspaceData || !workspaceData.$active) {
@@ -131,9 +85,7 @@ const Workspace: React.FC<WorkspaceProps> = ({ tabId }) => {
 
   const {
     audioFiles,
-    lyrics,
-    albumArtFile,
-    backgroundFiles,
+    subtitles,
     metadata,
     durationInSeconds,
     videoPath
@@ -167,9 +119,8 @@ const Workspace: React.FC<WorkspaceProps> = ({ tabId }) => {
     // Update the tab content all at once to ensure state consistency
     updateTabContent(tabId, {
       audioFiles: normalizedAudioFiles,
-      lyrics: newLyrics,
-      lyricsFile: newLyricsFile,
-      backgroundFiles: {},
+      subtitles: newLyrics,
+      subtitlesFile: newLyricsFile,
       metadata: newMetadata,
       durationInSeconds: newDuration
     });
@@ -177,13 +128,13 @@ const Workspace: React.FC<WorkspaceProps> = ({ tabId }) => {
     // Tab name will remain as default since we removed title metadata
   };
 
-  // Handle lyrics threshold change
-  const handleLyricsThresholdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Handle subtitle threshold change
+  const handleSubtitleThresholdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newThreshold = parseInt(e.target.value, 10);
     updateTabContent(tabId, {
       metadata: {
         ...metadata,
-        lyricsLineThreshold: newThreshold
+        subtitleLineThreshold: newThreshold
       }
     });
   };
@@ -256,7 +207,7 @@ const Workspace: React.FC<WorkspaceProps> = ({ tabId }) => {
   };
 
   // Calculate whether to show preview and render controls
-  const canShowPreview = audioFiles?.main && lyrics && durationInSeconds > 0;
+  const canShowPreview = audioFiles?.main && subtitles && durationInSeconds > 0;
   // Add a 2-second buffer to ensure audio doesn't get cut off at the end
   const audioDurationWithBuffer = durationInSeconds + 2;
   const durationInFrames = Math.ceil(Math.max(60, audioDurationWithBuffer * metadata.frameRate));
@@ -285,8 +236,8 @@ const Workspace: React.FC<WorkspaceProps> = ({ tabId }) => {
                 main: audioFiles.main,
                 narration: audioFiles.narration || null
               },
-              lyrics,
-              lyricsFile: workspaceData.lyricsFile,
+              lyrics: subtitles,
+              lyricsFile: workspaceData.subtitlesFile,
               metadata
             }}
           />
@@ -301,7 +252,7 @@ const Workspace: React.FC<WorkspaceProps> = ({ tabId }) => {
             <PreviewGrid>
               <PreviewContainer>
                 <Player
-                  key={`${tabId}-${metadata.videoType}-${audioUrls.main}-${audioUrls.narration}-${JSON.stringify(backgroundUrls)}-${metadata.resolution}-${metadata.frameRate}`}
+                  key={`${tabId}-${metadata.videoType}-${audioUrls.main}-${audioUrls.narration}-${metadata.resolution}-${metadata.frameRate}`}
                   component={SubtitledVideoContent}
                   durationInFrames={durationInFrames}
                   compositionWidth={metadata.resolution === '2K' ? 2560 : 1920}
@@ -315,9 +266,8 @@ const Workspace: React.FC<WorkspaceProps> = ({ tabId }) => {
                   inputProps={{
                     audioUrl: audioUrls.main,
                     narrationUrl: audioUrls.narration,
-                    lyrics: lyrics || [],
+                    lyrics: subtitles || [],
                     durationInSeconds,
-                    backgroundImageUrl: backgroundUrls[metadata.videoType] || '',
                     metadata,
                     isVideoFile: mainFileIsVideo
                   }}
@@ -327,7 +277,7 @@ const Workspace: React.FC<WorkspaceProps> = ({ tabId }) => {
                 <RenderControlContainer>
                   <RenderControl
                     audioFile={audioFiles.main}
-                    lyrics={lyrics}
+                    lyrics={subtitles}
                     durationInSeconds={durationInSeconds}
                     metadata={metadata}
                     onRenderComplete={handleRenderComplete}
@@ -376,14 +326,14 @@ const Workspace: React.FC<WorkspaceProps> = ({ tabId }) => {
                 <SliderControl>
                   <SliderLabel>
                     Subtitle Line Length
-                    <SliderValue>{metadata.lyricsLineThreshold}</SliderValue>
+                    <SliderValue>{metadata.subtitleLineThreshold}</SliderValue>
                   </SliderLabel>
                   <input
                     type="range"
                     min="20"
                     max="100"
-                    value={metadata.lyricsLineThreshold || 40}
-                    onChange={handleLyricsThresholdChange}
+                    value={metadata.subtitleLineThreshold || 40}
+                    onChange={handleSubtitleThresholdChange}
                   />
                   <SliderDescription>Adjust the maximum characters per subtitle line.</SliderDescription>
                 </SliderControl>

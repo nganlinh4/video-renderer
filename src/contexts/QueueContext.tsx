@@ -7,7 +7,6 @@ export interface QueueItem {
   audioFile: File;
   lyrics: LyricEntry[];
   durationInSeconds: number;
-  backgroundFiles: { [key: string]: File | null };
   metadata: VideoMetadata;
   narrationFile?: File | null;
   status: 'pending' | 'processing' | 'complete' | 'error';

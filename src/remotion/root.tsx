@@ -4,17 +4,15 @@ import SubtitledVideoWrapper from './Composition';
 import { Props, VideoMetadata, LyricEntry } from '../types';
 
 // Sample data for preview mode
-const sampleLyrics: LyricEntry[] = [
+const sampleSubtitles: LyricEntry[] = [
   { start: 0, end: 2, text: "Welcome to" },
-  { start: 2, end: 4, text: "Subtitled Video Maker" },
+  { start: 2, end: 4, text: "Subtitle Video Maker" },
   { start: 4, end: 6, text: "Preview Mode" }
 ];
 
 const defaultMetadata: VideoMetadata = {
   videoType: 'Subtitled Video',
-  lyricsLineThreshold: 41, // Kept for compatibility
-  metadataPosition: -155, // Kept for compatibility
-  metadataWidth: 450, // Kept for compatibility
+  subtitleLineThreshold: 41,
   resolution: '2K',
   frameRate: 60,
   originalAudioVolume: 100,
@@ -26,10 +24,9 @@ const VideoComponentWrapper: React.FC<Record<string, unknown>> = (props) => {
   // Ensure all required props are present with defaults
   const safeProps: Props = {
     audioUrl: (props.audioUrl as string) || '',
-    lyrics: (props.lyrics as LyricEntry[]) || sampleLyrics,
+    lyrics: (props.lyrics as LyricEntry[]) || sampleSubtitles,
     durationInSeconds: (props.durationInSeconds as number) || 6,
     metadata: (props.metadata as VideoMetadata) || defaultMetadata,
-    backgroundImageUrl: props.backgroundImageUrl as string | undefined,
     narrationUrl: props.narrationUrl as string | undefined,
     isVideoFile: (props.isVideoFile as boolean) || false
   };
@@ -55,7 +52,7 @@ export const RemotionRoot: React.FC = () => {
         {...commonProps}
         defaultProps={{
           audioUrl: '',
-          lyrics: sampleLyrics,
+          lyrics: sampleSubtitles,
           durationInSeconds: 6,
           metadata: { ...defaultMetadata, videoType: 'Subtitled Video' }
         }}

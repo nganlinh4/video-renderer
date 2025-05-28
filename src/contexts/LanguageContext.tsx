@@ -156,26 +156,7 @@ export const translations: Translations = {
     ko: '가사: ',
     vi: 'Lời bài hát: '
   },
-  albumArt: {
-    en: 'Album Art: ',
-    ko: '앨범 아트: ',
-    vi: 'Ảnh bìa album: '
-  },
-  background: {
-    en: 'Background: ',
-    ko: '배경: ',
-    vi: 'Hình nền: '
-  },
-  artistName: {
-    en: 'Artist Name',
-    ko: '아티스트 이름',
-    vi: 'Tên nghệ sĩ'
-  },
-  songTitle: {
-    en: 'Song Title',
-    ko: '노래 제목',
-    vi: 'Tên bài hát'
-  },
+
   videoType: {
     en: 'Video Type',
     ko: '비디오 타입',
@@ -201,11 +182,7 @@ export const translations: Translations = {
     ko: '설명',
     vi: 'Mô tả'
   },
-  enterTitleAndDescription: {
-    en: 'Enter title and description',
-    ko: '제목과 설명을 입력하세요',
-    vi: 'Nhập tiêu đề và mô tả'
-  },
+
   mainAudioFile: {
     en: 'Main Audio File (MP3, WAV)',
     ko: '메인 오디오 파일 (MP3, WAV)',
@@ -216,30 +193,10 @@ export const translations: Translations = {
     ko: '내레이션 오디오 (선택사항)',
     vi: 'Âm thanh thuyết minh (Tùy chọn)'
   },
-  lyricsFile: {
-    en: 'Lyrics File (JSON)',
-    ko: '가사 파일 (JSON)',
-    vi: 'Tệp lời bài hát (JSON)'
-  },
-  albumArtOptional: {
-    en: 'Album Art (Optional)',
-    ko: '앨범 아트 (선택사항)',
-    vi: 'Ảnh bìa album (Tùy chọn)'
-  },
-  backgroundImages: {
-    en: 'Background Images (Optional)',
-    ko: '배경 이미지 (선택사항)',
-    vi: 'Hình nền (Tùy chọn)'
-  },
-  backgroundNote: {
-    en: 'Note: You can upload a different background image for each video type.',
-    ko: '참고: 각 비디오 타입별로 다른 배경 이미지를 업로드할 수 있습니다.',
-    vi: 'Lưu ý: Bạn có thể tải lên hình nền khác nhau cho mỗi loại video.'
-  },
-  backgroundForType: {
-    en: 'Background for',
-    ko: '배경 이미지 -', // Note: Korean uses a dash, English/Vietnamese use 'for'
-    vi: 'Hình nền cho'
+  subtitlesFile: {
+    en: 'Subtitles File (SRT/JSON)',
+    ko: '자막 파일 (SRT/JSON)',
+    vi: 'Tệp phụ đề (SRT/JSON)'
   },
   reset: {
     en: 'Reset',
@@ -247,24 +204,14 @@ export const translations: Translations = {
     vi: 'Đặt lại'
   },
   audioFilesByNames: {
-    en: 'Audio files based on names (containing "music", "vocals", "+")',
-    ko: '이름 기반 오디오 파일("music", "vocals", "+" 포함)',
-    vi: 'Tệp âm thanh dựa trên tên (chứa "music", "vocals", "+")'
+    en: 'Audio files based on names (containing "main", "narration", "+")',
+    ko: '이름 기반 오디오 파일("main", "narration", "+" 포함)',
+    vi: 'Tệp âm thanh dựa trên tên (chứa "main", "narration", "+")'
   },
-  jsonForLyrics: {
-    en: 'JSON files for lyrics',
-    ko: '가사용 JSON 파일',
-    vi: 'Tệp JSON cho lời bài hát'
-  },
-  squareImages: {
-    en: 'Square images for album art',
-    ko: '앨범 아트용 정사각형 이미지',
-    vi: 'Hình ảnh vuông cho ảnh bìa album'
-  },
-  nonSquareImages: {
-    en: 'Non-square images for background',
-    ko: '배경용 직사각형 이미지',
-    vi: 'Hình ảnh không vuông cho hình nền'
+  srtJsonForSubtitles: {
+    en: 'SRT/JSON files for subtitles',
+    ko: '자막용 SRT/JSON 파일',
+    vi: 'Tệp SRT/JSON cho phụ đề'
   },
 
   // Render Control
@@ -357,27 +304,13 @@ export const translations: Translations = {
     ko: '오디오 파일을 먼저 업로드하세요',
     vi: 'Vui lòng tải lên tệp âm thanh trước'
   },
-  enterArtistAndTitle: {
-    en: 'Please enter artist name and song title',
-    ko: '아티스트 이름과 노래 제목을 입력하세요',
-    vi: 'Vui lòng nhập tên nghệ sĩ và tên bài hát'
-  },
+
 
   // Workspace
-  metadataPosition: {
-    en: 'Metadata Position',
-    ko: '메타데이터 위치',
-    vi: 'Vị trí siêu dữ liệu'
-  },
-  metadataWidth: {
-    en: 'Metadata Width',
-    ko: '메타데이터 너비',
-    vi: 'Chiều rộng siêu dữ liệu'
-  },
-  lyricsLineThreshold: {
-    en: 'Lyrics Line Threshold',
-    ko: '가사 줄 임계값',
-    vi: 'Ngưỡng dòng lời bài hát'
+  subtitleLineThreshold: {
+    en: 'Subtitle Line Threshold',
+    ko: '자막 줄 임계값',
+    vi: 'Ngưỡng dòng phụ đề'
   },
   adjustPreview: {
     en: 'Adjust Preview',
@@ -408,20 +341,10 @@ export const translations: Translations = {
   },
 
   // Slider descriptions
-  metadataPositionDesc: {
-    en: 'Adjust the vertical position of the artist name and song title.',
-    ko: '아티스트 이름과 노래 제목의 수직 위치를 조정합니다.',
-    vi: 'Điều chỉnh vị trí dọc của tên nghệ sĩ và tên bài hát.'
-  },
-  metadataWidthDesc: {
-    en: 'Adjust the width of the metadata container.',
-    ko: '메타데이터 컨테이너의 너비를 조정합니다.',
-    vi: 'Điều chỉnh chiều rộng của vùng chứa siêu dữ liệu.'
-  },
-  lyricsLineThresholdDesc: {
-    en: 'Long lyrics lines will be automatically split to prevent words from jumping.',
-    ko: '긴 가사 줄은 단어가 튀는 것을 방지하기 위해 자동으로 분할됩니다.',
-    vi: 'Các dòng lời bài hát dài sẽ được tự động chia để ngăn từ nhảy.'
+  subtitleLineThresholdDesc: {
+    en: 'Long subtitle lines will be automatically split to prevent words from jumping.',
+    ko: '긴 자막 줄은 단어가 튀는 것을 방지하기 위해 자동으로 분할됩니다.',
+    vi: 'Các dòng phụ đề dài sẽ được tự động chia để ngăn từ nhảy.'
   },
   resolutionDesc: {
     en: 'Choose the resolution for preview and rendering.',
