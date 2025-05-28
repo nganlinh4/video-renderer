@@ -65,6 +65,7 @@ interface RenderControlProps {
   };
   onRenderComplete: (videoPath: string) => void;
   narrationFile?: File | null;
+  isVideoFile?: boolean; // Flag to indicate if the main file is a video
 }
 
 export const RenderControl: React.FC<RenderControlProps> = ({
@@ -72,7 +73,8 @@ export const RenderControl: React.FC<RenderControlProps> = ({
   lyrics: subtitles, // Rename parameter internally
   metadata,
   onRenderComplete,
-  narrationFile
+  narrationFile,
+  isVideoFile = false
 }) => {
   const { t } = useLanguage();
 
@@ -112,6 +114,7 @@ export const RenderControl: React.FC<RenderControlProps> = ({
         narrationVolume: metadata.narrationVolume || 100
       },
       narrationFile,
+      isVideoFile,
       singleVersion: true
     });
   };
@@ -133,6 +136,7 @@ export const RenderControl: React.FC<RenderControlProps> = ({
         narrationVolume: metadata.narrationVolume || 100
       },
       narrationFile,
+      isVideoFile,
       singleVersion: true
     });
   };
@@ -178,6 +182,7 @@ export const RenderControl: React.FC<RenderControlProps> = ({
             nextItem.lyrics,
             {
               metadata: { ...nextItem.metadata, videoType },
+              isVideoFile: nextItem.isVideoFile,
               ...typeSpecificAudioConfig
             },
             (progress) => {

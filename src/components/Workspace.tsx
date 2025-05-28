@@ -279,6 +279,7 @@ const Workspace: React.FC<WorkspaceProps> = ({ tabId }) => {
                     metadata={metadata}
                     onRenderComplete={handleRenderComplete}
                     narrationFile={audioFiles.narration || null}
+                    isVideoFile={mainFileIsVideo}
                   />
                 </RenderControlContainer>
               </PreviewContainer>

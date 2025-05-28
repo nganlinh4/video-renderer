@@ -13,6 +13,7 @@ export interface RenderProgress {
 
 export interface RenderOptions {
   narrationUrl?: string;
+  isVideoFile?: boolean;
   metadata?: {
     videoType: 'Subtitled Video';
     resolution?: Resolution;
@@ -151,7 +152,8 @@ export class RemotionService {
           audioFile: audioUrl.split('/').pop(),
           lyrics,
           metadata,
-          narrationUrl: additionalAudioUrls.narrationUrl
+          narrationUrl: additionalAudioUrls.narrationUrl,
+          isVideoFile: options.isVideoFile || false
         }),
       });
 

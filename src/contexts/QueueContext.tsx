@@ -8,6 +8,7 @@ export interface QueueItem {
   lyrics: LyricEntry[];
   metadata: VideoMetadata;
   narrationFile?: File | null;
+  isVideoFile?: boolean; // Flag to indicate if the main file is a video
   status: 'pending' | 'processing' | 'complete' | 'error';
   progress: number;
   error?: string;

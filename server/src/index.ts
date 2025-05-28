@@ -137,7 +137,8 @@ app.post('/render', async (req, res) => {
         originalAudioVolume: 100,
         narrationVolume: 100
       },
-      narrationUrl
+      narrationUrl,
+      isVideoFile = false
     } = req.body;
 
     if (!audioFile || !lyrics) {
@@ -217,7 +218,8 @@ app.post('/render', async (req, res) => {
         audioUrl: audioUrl,
         lyrics,
         metadata,
-        narrationUrl
+        narrationUrl,
+        isVideoFile
       }
     });
     console.log('Available compositions:', compositions.map(c => c.id));
@@ -230,7 +232,8 @@ app.post('/render', async (req, res) => {
         lyrics,
         durationInSeconds,
         metadata,
-        narrationUrl
+        narrationUrl,
+        isVideoFile
       },
     });
 
@@ -260,7 +263,8 @@ app.post('/render', async (req, res) => {
           audioUrl: audioUrl,
           lyrics,
           metadata,
-          narrationUrl
+          narrationUrl,
+          isVideoFile
         },
         chromiumOptions: {
           disableWebSecurity: true,
@@ -299,7 +303,8 @@ app.post('/render', async (req, res) => {
                 audioUrl: audioUrl,
                 lyrics,
                 metadata,
-                narrationUrl
+                narrationUrl,
+                isVideoFile
               },
               chromiumOptions: {
                 disableWebSecurity: true,
