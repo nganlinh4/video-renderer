@@ -1,4 +1,4 @@
-import { LyricEntry } from '../../types';
+import { LyricEntry, Resolution } from '../../types';
 
 export interface AudioFiles {
   main: File | null; // Original video audio
@@ -7,7 +7,7 @@ export interface AudioFiles {
 
 export interface VideoMetadata {
   videoType: 'Subtitled Video';
-  resolution: '1080p' | '2K';
+  resolution: Resolution;
   frameRate: 30 | 60;
   originalAudioVolume: number; // Volume for original audio/video (0-100)
   narrationVolume: number; // Volume for narration audio (0-100)

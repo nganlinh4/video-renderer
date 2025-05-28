@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import styled from 'styled-components';
 
-import { LyricEntry } from '../types';
+import { LyricEntry, Resolution } from '../types';
 
 
 import remotionService from '../services/remotionService';
@@ -58,7 +58,7 @@ interface RenderControlProps {
   lyrics: LyricEntry[] | null; // Keep as lyrics for backward compatibility
   metadata: {
     videoType: 'Subtitled Video';
-    resolution: '1080p' | '2K';
+    resolution: Resolution;
     frameRate: 30 | 60;
     originalAudioVolume: number;
     narrationVolume: number;

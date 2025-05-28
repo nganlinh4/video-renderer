@@ -1,4 +1,4 @@
-import { LyricEntry } from '../types';
+import { LyricEntry, Resolution } from '../types';
 import { analyzeAudio } from '../utils/audioAnalyzer';
 
 const SERVER_URL = 'http://localhost:3020';
@@ -15,7 +15,7 @@ export interface RenderOptions {
   narrationUrl?: string;
   metadata?: {
     videoType: 'Subtitled Video';
-    resolution?: '1080p' | '2K';
+    resolution?: Resolution;
     frameRate?: 30 | 60;
     subtitleLineThreshold?: number;
     originalAudioVolume?: number;

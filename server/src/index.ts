@@ -155,8 +155,27 @@ app.post('/render', async (req, res) => {
 
     // Determine resolution dimensions based on metadata
     const resolution = metadata.resolution || '1080p';
-    const width = resolution === '2K' ? 2560 : 1920;
-    const height = resolution === '2K' ? 1440 : 1080;
+    let width: number, height: number;
+
+    switch (resolution) {
+      case '480p':
+        width = 854;
+        height = 480;
+        break;
+      case '720p':
+        width = 1280;
+        height = 720;
+        break;
+      case '2K':
+        width = 2560;
+        height = 1440;
+        break;
+      case '1080p':
+      default:
+        width = 1920;
+        height = 1080;
+        break;
+    }
 
     const outputFile = `subtitle-video-${Date.now()}.mp4`;
     const outputPath = path.join(outputDir, outputFile);

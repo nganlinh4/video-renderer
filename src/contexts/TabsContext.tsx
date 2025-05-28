@@ -19,7 +19,8 @@ function loadUserPreferences() {
   try {
     // Load resolution preference
     const savedResolution = localStorage.getItem('preferredResolution');
-    const resolution = savedResolution === '1080p' ? '1080p' : '2K';
+    const validResolutions = ['480p', '720p', '1080p', '2K'];
+    const resolution = validResolutions.includes(savedResolution || '') ? savedResolution : '2K';
 
     // Load frame rate preference
     const savedFrameRate = localStorage.getItem('preferredFrameRate');
@@ -49,7 +50,7 @@ export function createEmptyWorkspace(id: string, name: string): WorkspaceTab {
   subtitlesFile: null,
   metadata: {
     videoType: 'Subtitled Video',
-    resolution: resolution as '1080p' | '2K',
+    resolution: resolution as '480p' | '720p' | '1080p' | '2K',
     frameRate: frameRate as 30 | 60,
     originalAudioVolume: 100,
     narrationVolume: 100

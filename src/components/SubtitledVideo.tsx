@@ -16,13 +16,9 @@ const TRANSITION_DURATION = 0.3;
 
 
 
-// Utility function to get scaled values based on resolution
-const getScaledValue = (value: number, metadata: VideoMetadata): number => {
-  if (metadata.resolution === '2K') {
-    return value * 1.33; // Scale up for 2K resolution
-  }
-  return value; // Default for 1080p
-};
+
+
+
 
 export interface Props {
   audioUrl: string; // Original video/audio file
@@ -42,8 +38,23 @@ export const SubtitledVideoContent: React.FC<Props> = ({
   isVideoFile = false
 }) => {
   const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
+  const { fps, height: compositionHeight } = useVideoConfig();
   const currentTimeInSeconds = frame / fps;
+
+  // Create a scaling function that uses actual composition dimensions
+  const getResponsiveScaledValue = (value: number): number => {
+    const baseHeight = 1080; // Reference height (1080p)
+    const scale = compositionHeight / baseHeight;
+    return Math.round(value * scale);
+  };
+
+  // Get consistent relative position as percentage (based on 1080p reference)
+  const getConsistentRelativePosition = (pixelValue: number, dimension: 'width' | 'height'): string => {
+    // Always calculate percentage based on 1080p reference dimensions
+    const referenceDimension = dimension === 'width' ? 1920 : 1080;
+    const percentage = (pixelValue / referenceDimension) * 100;
+    return `${percentage.toFixed(2)}%`;
+  };
 
   // Determine if we should show video or just audio with background
   const showVideo = isVideoFile;
@@ -97,7 +108,8 @@ export const SubtitledVideoContent: React.FC<Props> = ({
             style={{
               width: '100%',
               height: '100%',
-              objectFit: 'cover',
+              objectFit: 'contain', // Maintain aspect ratio, don't crop
+              backgroundColor: '#000', // Fill letterbox areas with black
             }}
           />
         ) : (
@@ -120,7 +132,7 @@ export const SubtitledVideoContent: React.FC<Props> = ({
         <div
           style={{
             position: 'absolute',
-            bottom: getScaledValue(80, metadata),
+            bottom: getConsistentRelativePosition(80, 'height'), // Consistent relative positioning
             left: 0,
             right: 0,
             display: 'flex',
@@ -141,15 +153,15 @@ export const SubtitledVideoContent: React.FC<Props> = ({
                 key={index}
                 style={{
                   opacity: progress,
-                  fontSize: getScaledValue(28, metadata),
+                  fontSize: getResponsiveScaledValue(28),
                   fontFamily: FONT_FAMILY,
                   fontWeight: 600,
                   color: 'white',
-                  textShadow: `0 ${getScaledValue(2, metadata)}px ${getScaledValue(4, metadata)}px rgba(0,0,0,0.8)`,
+                  textShadow: `0 ${getResponsiveScaledValue(2)}px ${getResponsiveScaledValue(4)}px rgba(0,0,0,0.8)`,
                   backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                  padding: `${getScaledValue(8, metadata)}px ${getScaledValue(16, metadata)}px`,
-                  borderRadius: getScaledValue(4, metadata),
-                  marginBottom: getScaledValue(8, metadata),
+                  padding: `${getResponsiveScaledValue(8)}px ${getResponsiveScaledValue(16)}px`,
+                  borderRadius: getResponsiveScaledValue(4),
+                  marginBottom: getResponsiveScaledValue(8),
                   textAlign: 'center',
                   maxWidth: '80%',
                   whiteSpace: 'pre-wrap',

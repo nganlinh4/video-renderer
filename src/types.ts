@@ -7,7 +7,7 @@ export interface SubtitleEntry {
 // Keep LyricEntry as alias for backward compatibility
 export type LyricEntry = SubtitleEntry;
 
-export type Resolution = '1080p' | '2K';
+export type Resolution = '480p' | '720p' | '1080p' | '2K';
 export type FrameRate = 30 | 60;
 
 export interface VideoMetadata {

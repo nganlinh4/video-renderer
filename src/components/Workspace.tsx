@@ -154,7 +154,7 @@ const Workspace: React.FC<WorkspaceProps> = ({ tabId }) => {
 
   // Handle resolution change
   const handleResolutionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newResolution = e.target.value as '1080p' | '2K';
+    const newResolution = e.target.value as '480p' | '720p' | '1080p' | '2K';
 
     // Save preference to localStorage
     try {
@@ -246,8 +246,16 @@ const Workspace: React.FC<WorkspaceProps> = ({ tabId }) => {
                   key={`${tabId}-${metadata.videoType}-${audioUrls.main}-${audioUrls.narration}-${metadata.resolution}-${metadata.frameRate}`}
                   component={SubtitledVideoContent}
                   durationInFrames={durationInFrames}
-                  compositionWidth={metadata.resolution === '2K' ? 2560 : 1920}
-                  compositionHeight={metadata.resolution === '2K' ? 1440 : 1080}
+                  compositionWidth={
+                    metadata.resolution === '480p' ? 854 :
+                    metadata.resolution === '720p' ? 1280 :
+                    metadata.resolution === '2K' ? 2560 : 1920
+                  }
+                  compositionHeight={
+                    metadata.resolution === '480p' ? 480 :
+                    metadata.resolution === '720p' ? 720 :
+                    metadata.resolution === '2K' ? 1440 : 1080
+                  }
                   fps={metadata.frameRate}
                   controls
                   style={{
@@ -321,6 +329,8 @@ const Workspace: React.FC<WorkspaceProps> = ({ tabId }) => {
                     value={metadata.resolution}
                     onChange={handleResolutionChange}
                   >
+                    <option value="480p">480p (854x480)</option>
+                    <option value="720p">720p (1280x720)</option>
                     <option value="1080p">1080p (1920x1080)</option>
                     <option value="2K">2K (2560x1440)</option>
                   </select>
