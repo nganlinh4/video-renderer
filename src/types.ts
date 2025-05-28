@@ -12,7 +12,6 @@ export type FrameRate = 30 | 60;
 
 export interface VideoMetadata {
   videoType: 'Subtitled Video';
-  subtitleLineThreshold: number; // Maximum characters per subtitle line
   resolution: Resolution; // Video resolution (1080p or 2K)
   frameRate: FrameRate; // Frame rate (30 or 60 fps)
   originalAudioVolume: number; // Volume for original audio/video (0-100)
@@ -28,7 +27,6 @@ export interface Props {
   audioUrl: string; // Original video audio
   narrationUrl?: string; // Narration audio
   lyrics: LyricEntry[]; // Subtitles
-  durationInSeconds: number;
   backgroundImageUrl?: string; // Optional background image
   metadata: VideoMetadata;
   isVideoFile?: boolean; // Flag to indicate if the main file is a video
@@ -41,7 +39,6 @@ export interface AudioProps {
   audioUrl?: string;
   narrationUrl?: string;
   lyrics: LyricEntry[];
-  durationInSeconds: number;
   backgroundImageUrl?: string;
 }
 

@@ -55,11 +55,9 @@ const InfoText = styled.div`
 
 interface RenderControlProps {
   audioFile: File | null;
-  lyrics: LyricEntry[] | null;
-  durationInSeconds: number;
+  lyrics: LyricEntry[] | null; // Keep as lyrics for backward compatibility
   metadata: {
     videoType: 'Subtitled Video';
-    subtitleLineThreshold: number;
     resolution: '1080p' | '2K';
     frameRate: 30 | 60;
     originalAudioVolume: number;
@@ -71,8 +69,7 @@ interface RenderControlProps {
 
 export const RenderControl: React.FC<RenderControlProps> = ({
   audioFile,
-  lyrics,
-  durationInSeconds,
+  lyrics: subtitles, // Rename parameter internally
   metadata,
   onRenderComplete,
   narrationFile
@@ -95,10 +92,9 @@ export const RenderControl: React.FC<RenderControlProps> = ({
 
   // Check if we can add files to queue
   const canAddToQueue = audioFile &&
-                     lyrics &&
-                     Array.isArray(lyrics) &&
-                     lyrics.length > 0 &&
-                     durationInSeconds > 0;
+                     subtitles &&
+                     Array.isArray(subtitles) &&
+                     subtitles.length > 0;
 
   // Function to add current version to queue
   const handleAddCurrentVersionToQueue = () => {
@@ -106,8 +102,7 @@ export const RenderControl: React.FC<RenderControlProps> = ({
 
     addToQueue({
       audioFile,
-      lyrics: lyrics || [],
-      durationInSeconds,
+      lyrics: subtitles || [],
       metadata: {
         ...metadata,
         videoType: metadata.videoType,
@@ -128,8 +123,7 @@ export const RenderControl: React.FC<RenderControlProps> = ({
     // For subtitled videos, there's only one type
     addToQueue({
       audioFile,
-      lyrics: lyrics || [],
-      durationInSeconds,
+      lyrics: subtitles || [],
       metadata: {
         ...metadata,
         videoType: 'Subtitled Video',
@@ -182,7 +176,6 @@ export const RenderControl: React.FC<RenderControlProps> = ({
           const videoPath = await remotionService.renderVideo(
             nextItem.audioFile,
             nextItem.lyrics,
-            nextItem.durationInSeconds,
             {
               metadata: { ...nextItem.metadata, videoType },
               ...typeSpecificAudioConfig

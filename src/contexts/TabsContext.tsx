@@ -49,7 +49,6 @@ export function createEmptyWorkspace(id: string, name: string): WorkspaceTab {
   subtitlesFile: null,
   metadata: {
     videoType: 'Subtitled Video',
-    subtitleLineThreshold: 41,
     resolution: resolution as '1080p' | '2K',
     frameRate: frameRate as 30 | 60,
     originalAudioVolume: 100,

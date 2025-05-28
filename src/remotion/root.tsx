@@ -12,7 +12,6 @@ const sampleSubtitles: LyricEntry[] = [
 
 const defaultMetadata: VideoMetadata = {
   videoType: 'Subtitled Video',
-  subtitleLineThreshold: 41,
   resolution: '2K',
   frameRate: 60,
   originalAudioVolume: 100,
@@ -25,7 +24,6 @@ const VideoComponentWrapper: React.FC<Record<string, unknown>> = (props) => {
   const safeProps: Props = {
     audioUrl: (props.audioUrl as string) || '',
     lyrics: (props.lyrics as LyricEntry[]) || sampleSubtitles,
-    durationInSeconds: (props.durationInSeconds as number) || 6,
     metadata: (props.metadata as VideoMetadata) || defaultMetadata,
     narrationUrl: props.narrationUrl as string | undefined,
     isVideoFile: (props.isVideoFile as boolean) || false
@@ -53,7 +51,6 @@ export const RemotionRoot: React.FC = () => {
         defaultProps={{
           audioUrl: '',
           lyrics: sampleSubtitles,
-          durationInSeconds: 6,
           metadata: { ...defaultMetadata, videoType: 'Subtitled Video' }
         }}
       />

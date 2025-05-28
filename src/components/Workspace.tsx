@@ -128,16 +128,7 @@ const Workspace: React.FC<WorkspaceProps> = ({ tabId }) => {
     // Tab name will remain as default since we removed title metadata
   };
 
-  // Handle subtitle threshold change
-  const handleSubtitleThresholdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newThreshold = parseInt(e.target.value, 10);
-    updateTabContent(tabId, {
-      metadata: {
-        ...metadata,
-        subtitleLineThreshold: newThreshold
-      }
-    });
-  };
+
 
   // Handle original audio volume change
   const handleOriginalAudioVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -267,7 +258,6 @@ const Workspace: React.FC<WorkspaceProps> = ({ tabId }) => {
                     audioUrl: audioUrls.main,
                     narrationUrl: audioUrls.narration,
                     lyrics: subtitles || [],
-                    durationInSeconds,
                     metadata,
                     isVideoFile: mainFileIsVideo
                   }}
@@ -278,7 +268,6 @@ const Workspace: React.FC<WorkspaceProps> = ({ tabId }) => {
                   <RenderControl
                     audioFile={audioFiles.main}
                     lyrics={subtitles}
-                    durationInSeconds={durationInSeconds}
                     metadata={metadata}
                     onRenderComplete={handleRenderComplete}
                     narrationFile={audioFiles.narration || null}
@@ -321,22 +310,6 @@ const Workspace: React.FC<WorkspaceProps> = ({ tabId }) => {
                     <SliderDescription>Adjust the volume of the narration audio track.</SliderDescription>
                   </SliderControl>
                 )}
-
-                <h3>Subtitle Settings</h3>
-                <SliderControl>
-                  <SliderLabel>
-                    Subtitle Line Length
-                    <SliderValue>{metadata.subtitleLineThreshold}</SliderValue>
-                  </SliderLabel>
-                  <input
-                    type="range"
-                    min="20"
-                    max="100"
-                    value={metadata.subtitleLineThreshold || 40}
-                    onChange={handleSubtitleThresholdChange}
-                  />
-                  <SliderDescription>Adjust the maximum characters per subtitle line.</SliderDescription>
-                </SliderControl>
 
                 <h3>{t('videoSettings')}</h3>
 

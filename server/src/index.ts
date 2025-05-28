@@ -130,21 +130,22 @@ app.post('/render', async (req, res) => {
       compositionId = 'subtitled-video', // Get compositionId from request, fallback to default
       audioFile,
       lyrics,
-      durationInSeconds,
       metadata = {
         videoType: 'Subtitled Video',
         resolution: '2K',
         frameRate: 60,
-        subtitleLineThreshold: 41,
         originalAudioVolume: 100,
         narrationVolume: 100
       },
       narrationUrl
     } = req.body;
 
-    if (!audioFile || !lyrics || !durationInSeconds) {
+    if (!audioFile || !lyrics) {
       return res.status(400).json({ error: 'Missing required parameters' });
     }
+
+    // Calculate duration from the last subtitle end time + buffer
+    const durationInSeconds = lyrics.length > 0 ? Math.max(...lyrics.map((l: any) => l.end)) + 2 : 8;
 
     // Use the frame rate from metadata or default to 60
     const fps = metadata.frameRate || 60;
@@ -196,7 +197,6 @@ app.post('/render', async (req, res) => {
       inputProps: {
         audioUrl: audioUrl,
         lyrics,
-        durationInSeconds,
         metadata,
         narrationUrl
       }
@@ -240,7 +240,6 @@ app.post('/render', async (req, res) => {
         inputProps: {
           audioUrl: audioUrl,
           lyrics,
-          durationInSeconds,
           metadata,
           narrationUrl
         },
@@ -280,7 +279,6 @@ app.post('/render', async (req, res) => {
               inputProps: {
                 audioUrl: audioUrl,
                 lyrics,
-                durationInSeconds,
                 metadata,
                 narrationUrl
               },

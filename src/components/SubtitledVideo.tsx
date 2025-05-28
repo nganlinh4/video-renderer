@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
-import { AbsoluteFill, useCurrentFrame, interpolate, Audio, Video, useVideoConfig, Easing } from 'remotion';
+import { AbsoluteFill, useCurrentFrame, Audio, Video, useVideoConfig } from 'remotion';
 import { LyricEntry, VideoMetadata } from '../types';
-import styled, { ThemeProvider } from 'styled-components';
+import { ThemeProvider } from 'styled-components';
 
 // Define Inter font directly without using @remotion/google-fonts
 const FONT_FAMILY = "'Inter', sans-serif";
@@ -12,17 +12,9 @@ const fontStyles = `
 `;
 
 // Constants for subtitle display
-const LYRIC_HEIGHT = 60;
-const LYRIC_MARGIN = 20;
-const EXTRA_LINE_MARGIN = 30;
-const BASE_POSITION = 100;
 const TRANSITION_DURATION = 0.3;
 
-// Utility function to count lines in a subtitle
-const countLyricLines = (text: string): number => {
-  if (!text) return 1;
-  return (text.match(/\n/g) || []).length + 1;
-};
+
 
 // Utility function to get scaled values based on resolution
 const getScaledValue = (value: number, metadata: VideoMetadata): number => {
@@ -36,7 +28,6 @@ export interface Props {
   audioUrl: string; // Original video/audio file
   narrationUrl?: string; // Narration audio
   lyrics: LyricEntry[]; // Subtitles
-  durationInSeconds: number;
   backgroundImageUrl?: string; // Optional background image
   metadata: VideoMetadata;
   isVideoFile?: boolean; // Flag to indicate if the main file is a video
@@ -46,47 +37,41 @@ export const SubtitledVideoContent: React.FC<Props> = ({
   audioUrl,
   narrationUrl,
   lyrics,
-  durationInSeconds,
   backgroundImageUrl,
   metadata,
   isVideoFile = false
 }) => {
   const frame = useCurrentFrame();
-  const { fps, width, height } = useVideoConfig();
+  const { fps } = useVideoConfig();
   const currentTimeInSeconds = frame / fps;
 
   // Determine if we should show video or just audio with background
   const showVideo = isVideoFile;
 
   // Process subtitles based on line threshold
-  const processedLyrics = useMemo(() => {
+  const processedSubtitles = useMemo(() => {
     if (!lyrics) {
       return lyrics;
     }
 
-    return lyrics.map(lyric => {
+    return lyrics.map(subtitle => {
       // Keep subtitles as they are - no need to split them
-      return lyric;
+      return subtitle;
     });
   }, [lyrics]);
 
-  // Find the active subtitle index
-  const activeLyricIndex = useMemo(() => {
-    return processedLyrics?.findIndex(
-      (lyric) => currentTimeInSeconds >= lyric.start && currentTimeInSeconds <= lyric.end
-    ) ?? -1;
-  }, [processedLyrics, currentTimeInSeconds]);
+
 
   // Calculate subtitle progress for fade in/out
-  const getLyricProgress = (lyric: LyricEntry, currentTime: number) => {
-    if (currentTime < lyric.start - TRANSITION_DURATION) {
+  const getSubtitleProgress = (subtitle: LyricEntry, currentTime: number) => {
+    if (currentTime < subtitle.start - TRANSITION_DURATION) {
       return 0;
-    } else if (currentTime >= lyric.start - TRANSITION_DURATION && currentTime <= lyric.start) {
-      return (currentTime - (lyric.start - TRANSITION_DURATION)) / TRANSITION_DURATION;
-    } else if (currentTime > lyric.start && currentTime < lyric.end) {
+    } else if (currentTime >= subtitle.start - TRANSITION_DURATION && currentTime <= subtitle.start) {
+      return (currentTime - (subtitle.start - TRANSITION_DURATION)) / TRANSITION_DURATION;
+    } else if (currentTime > subtitle.start && currentTime < subtitle.end) {
       return 1;
-    } else if (currentTime >= lyric.end && currentTime <= lyric.end + TRANSITION_DURATION) {
-      return 1 - (currentTime - lyric.end) / TRANSITION_DURATION;
+    } else if (currentTime >= subtitle.end && currentTime <= subtitle.end + TRANSITION_DURATION) {
+      return 1 - (currentTime - subtitle.end) / TRANSITION_DURATION;
     }
     return 0;
   };
@@ -145,8 +130,8 @@ export const SubtitledVideoContent: React.FC<Props> = ({
             zIndex: 10,
           }}
         >
-          {processedLyrics?.map((lyric: LyricEntry, index: number) => {
-            const progress = getLyricProgress(lyric, currentTimeInSeconds);
+          {processedSubtitles?.map((subtitle: LyricEntry, index: number) => {
+            const progress = getSubtitleProgress(subtitle, currentTimeInSeconds);
 
             // Only render subtitles that are visible or transitioning
             if (progress <= 0) return null;
@@ -170,7 +155,7 @@ export const SubtitledVideoContent: React.FC<Props> = ({
                   whiteSpace: 'pre-wrap',
                 }}
               >
-                {lyric.text}
+                {subtitle.text}
               </div>
             );
           })}

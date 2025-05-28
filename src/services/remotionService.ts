@@ -79,7 +79,6 @@ export class RemotionService {
   async renderVideo(
     audioFile: File,
     lyrics: LyricEntry[],
-    durationInSeconds: number,
     options: RenderOptions = {},
     onProgress?: (progress: RenderProgress) => void
   ): Promise<string> {
@@ -129,8 +128,9 @@ export class RemotionService {
 
       const frameRate = metadata.frameRate || this.defaultMetadata.frameRate;
 
-      // Add a 2-second buffer to ensure audio doesn't get cut off at the end
-      const audioDurationWithBuffer = durationInSeconds + 2;
+      // Calculate duration from the last subtitle end time + buffer
+      const lastSubtitleEnd = lyrics.length > 0 ? Math.max(...lyrics.map(l => l.end)) : 6;
+      const audioDurationWithBuffer = lastSubtitleEnd + 2;
       const totalFrames = Math.ceil(audioDurationWithBuffer * frameRate);
 
       onProgress?.({
@@ -150,7 +150,6 @@ export class RemotionService {
           compositionId,
           audioFile: audioUrl.split('/').pop(),
           lyrics,
-          durationInSeconds,
           metadata,
           narrationUrl: additionalAudioUrls.narrationUrl
         }),

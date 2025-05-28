@@ -131,7 +131,6 @@ export const useUploadFormHandlers = (
           parsedLyrics,
           {
             videoType: 'Subtitled Video',
-            subtitleLineThreshold: 41,
             resolution: initialValues?.metadata?.resolution || '1080p',
             frameRate: initialValues?.metadata?.frameRate || 60,
             originalAudioVolume: initialValues?.metadata?.originalAudioVolume || 100,
@@ -227,7 +226,6 @@ export const useUploadFormHandlers = (
               parsedLyrics,
               {
                 videoType: 'Subtitled Video',
-                subtitleLineThreshold: 41,
                 resolution: initialValues?.metadata?.resolution || '1080p',
                 frameRate: initialValues?.metadata?.frameRate || 60,
                 originalAudioVolume: (initialValues?.metadata as any)?.originalAudioVolume || 100,
@@ -319,7 +317,6 @@ export const useUploadFormHandlers = (
 
       const metadata = {
         videoType: 'Subtitled Video',
-        subtitleLineThreshold: 41,
         resolution: initialValues?.metadata?.resolution || '1080p',
         frameRate: initialValues?.metadata?.frameRate || 60,
         originalAudioVolume: (initialValues?.metadata as any)?.originalAudioVolume || 100,

@@ -341,11 +341,6 @@ export const translations: Translations = {
   },
 
   // Slider descriptions
-  subtitleLineThresholdDesc: {
-    en: 'Long subtitle lines will be automatically split to prevent words from jumping.',
-    ko: '긴 자막 줄은 단어가 튀는 것을 방지하기 위해 자동으로 분할됩니다.',
-    vi: 'Các dòng phụ đề dài sẽ được tự động chia để ngăn từ nhảy.'
-  },
   resolutionDesc: {
     en: 'Choose the resolution for preview and rendering.',
     ko: '미리보기 및 렌더링을 위한 해상도를 선택합니다.',

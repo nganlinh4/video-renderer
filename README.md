@@ -1,4 +1,4 @@
-# Lyrics Video Maker
+# Subtitled Video Maker
 
 <div align="center">
   <img src="readme_assets/Screenshot%202025-03-26%20105427.png" width="400" />
@@ -9,7 +9,7 @@
   <img src="readme_assets/Screenshot%202025-03-26%20105642.png" width="400" />
 </div>
 
-A React + Remotion application for creating dynamic lyrics videos with multiple audio track support and GPU-accelerated rendering.
+A React + Remotion application for creating dynamic subtitled videos with multiple audio track support and GPU-accelerated rendering.
 
 ## ⚠️ Usage Restrictions
 **Important:** This application is provided for offline and personal use only. Please note the following restrictions:

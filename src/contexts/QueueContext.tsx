@@ -6,7 +6,6 @@ export interface QueueItem {
   id: string;
   audioFile: File;
   lyrics: LyricEntry[];
-  durationInSeconds: number;
   metadata: VideoMetadata;
   narrationFile?: File | null;
   status: 'pending' | 'processing' | 'complete' | 'error';

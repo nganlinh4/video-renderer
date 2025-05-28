@@ -6,7 +6,6 @@ import { LyricEntry, VideoMetadata } from '../types';
 interface Props {
   audioUrl: string;
   lyrics: LyricEntry[];
-  durationInSeconds: number;
   metadata?: VideoMetadata; // Make metadata optional again to match what might come from the server
   narrationUrl?: string;
   isVideoFile?: boolean;
@@ -15,7 +14,6 @@ interface Props {
 // Default metadata to use if none is provided
 const DEFAULT_METADATA: VideoMetadata = {
   videoType: 'Subtitled Video',
-  subtitleLineThreshold: 41,
   resolution: '2K',
   frameRate: 60,
   originalAudioVolume: 100,
@@ -25,7 +23,6 @@ const DEFAULT_METADATA: VideoMetadata = {
 const SubtitledVideoWrapper: React.FC<Props> = ({
   audioUrl,
   lyrics,
-  durationInSeconds,
   metadata = DEFAULT_METADATA,
   narrationUrl,
   isVideoFile = false
@@ -34,7 +31,6 @@ const SubtitledVideoWrapper: React.FC<Props> = ({
     <SubtitledVideoContent
       audioUrl={audioUrl}
       lyrics={lyrics}
-      durationInSeconds={durationInSeconds}
       metadata={metadata}
       narrationUrl={narrationUrl}
       isVideoFile={isVideoFile}
