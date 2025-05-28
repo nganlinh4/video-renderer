@@ -73,18 +73,30 @@ export const SubtitledVideoContent: React.FC<Props> = ({
 
 
 
-  // Calculate subtitle progress for fade in/out
-  const getSubtitleProgress = (subtitle: LyricEntry, currentTime: number) => {
-    if (currentTime < subtitle.start - TRANSITION_DURATION) {
-      return 0;
-    } else if (currentTime >= subtitle.start - TRANSITION_DURATION && currentTime <= subtitle.start) {
-      return (currentTime - (subtitle.start - TRANSITION_DURATION)) / TRANSITION_DURATION;
-    } else if (currentTime > subtitle.start && currentTime < subtitle.end) {
-      return 1;
-    } else if (currentTime >= subtitle.end && currentTime <= subtitle.end + TRANSITION_DURATION) {
-      return 1 - (currentTime - subtitle.end) / TRANSITION_DURATION;
+  // Find the current active subtitle (only one at a time)
+  const getCurrentSubtitle = (currentTime: number) => {
+    // Find the subtitle that should be displayed at the current time
+    const activeSubtitle = processedSubtitles?.find(subtitle =>
+      currentTime >= subtitle.start - TRANSITION_DURATION &&
+      currentTime <= subtitle.end + TRANSITION_DURATION
+    );
+
+    if (!activeSubtitle) return null;
+
+    // Calculate opacity for fade in/out
+    let opacity = 1;
+    if (currentTime < activeSubtitle.start) {
+      // Fade in
+      opacity = (currentTime - (activeSubtitle.start - TRANSITION_DURATION)) / TRANSITION_DURATION;
+    } else if (currentTime > activeSubtitle.end) {
+      // Fade out
+      opacity = 1 - (currentTime - activeSubtitle.end) / TRANSITION_DURATION;
     }
-    return 0;
+
+    return {
+      ...activeSubtitle,
+      opacity: Math.max(0, Math.min(1, opacity))
+    };
   };
 
   return (
@@ -142,17 +154,15 @@ export const SubtitledVideoContent: React.FC<Props> = ({
             zIndex: 10,
           }}
         >
-          {processedSubtitles?.map((subtitle: LyricEntry, index: number) => {
-            const progress = getSubtitleProgress(subtitle, currentTimeInSeconds);
+          {(() => {
+            const currentSubtitle = getCurrentSubtitle(currentTimeInSeconds);
 
-            // Only render subtitles that are visible or transitioning
-            if (progress <= 0) return null;
+            if (!currentSubtitle || currentSubtitle.opacity <= 0) return null;
 
             return (
               <div
-                key={index}
                 style={{
-                  opacity: progress,
+                  opacity: currentSubtitle.opacity,
                   fontSize: getResponsiveScaledValue(28),
                   fontFamily: FONT_FAMILY,
                   fontWeight: 600,
@@ -161,16 +171,15 @@ export const SubtitledVideoContent: React.FC<Props> = ({
                   backgroundColor: 'rgba(0, 0, 0, 0.5)',
                   padding: `${getResponsiveScaledValue(8)}px ${getResponsiveScaledValue(16)}px`,
                   borderRadius: getResponsiveScaledValue(4),
-                  marginBottom: getResponsiveScaledValue(8),
                   textAlign: 'center',
                   maxWidth: '80%',
                   whiteSpace: 'pre-wrap',
                 }}
               >
-                {subtitle.text}
+                {currentSubtitle.text}
               </div>
             );
-          })}
+          })()}
         </div>
 
         {/* Audio tracks - only add separate audio if not using video (video already includes audio) */}
