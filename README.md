@@ -11,17 +11,6 @@
 
 A React + Remotion application for creating dynamic subtitled videos with multiple audio track support and GPU-accelerated rendering.
 
-## ⚠️ Usage Restrictions
-**Important:** This application is provided for offline and personal use only. Please note the following restrictions:
-- You may freely use this application for offline and personal purposes
-- You must NOT use the default video template/layout for online platforms like YouTube
-- To publish videos online, you MUST:
-  1. Clone this repository
-  2. Create your own unique video layout/animation/styles
-  3. Modify the visual design to be distinctly different from the original template
-
-These restrictions are in place to prevent template oversaturation and maintain creative diversity.
-
 ## Features
 
 - Create subtitled videos with synchronized text
@@ -29,6 +18,24 @@ These restrictions are in place to prevent template oversaturation and maintain 
   - Main audio/video
   - Narration audio (optional)
 - Volume controls for audio tracks
+- Customizable subtitle styles:
+  - Font size
+  - Font family
+  - Font weight
+  - Text color
+  - Text alignment
+  - Line height
+  - Letter spacing
+  - Text transform
+  - Background color
+  - Background opacity
+  - Border radius
+  - Border width
+  - Border color
+  - Border style
+  - Text shadow
+  - Glow effect
+
 - Theme switching (light/dark)
 - Multi-language support
 - Tab-based workspace
@@ -55,24 +62,14 @@ These restrictions are in place to prevent template oversaturation and maintain 
 ```bash
 npm install
 ```
+3. Build the server:
+```bash
+npm run server:build
+```
 
 ## Running the Application
 
 Run the application in development mode:
-
-1. **First terminal** - Frontend (React):
-```bash
-npm start
-```
-Runs on port 3002
-
-2. **Second terminal** - Backend (Express):
-```bash
-npm run server:start
-```
-Runs on port 3020
-
-Alternatively, you can run both with:
 ```bash
 npm run server:dev
 ```
