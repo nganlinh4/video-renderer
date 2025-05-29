@@ -5,10 +5,11 @@ import UploadForm from './UploadForm/UploadForm.component';
 import SubtitledVideoContent from './SubtitledVideo';
 import { RenderControl } from './RenderControl';
 import VideoPreview from './VideoPreview';
-import { LyricEntry, VideoMetadata, AudioFiles } from '../types';
+import { LyricEntry, VideoMetadata, AudioFiles, SubtitleCustomization } from '../types';
 import { analyzeAudio } from '../utils/audioAnalyzer';
 import { useTabs } from '../contexts/TabsContext';
 import { useLanguage } from '../contexts/LanguageContext';
+import SubtitleCustomizationPanel, { defaultCustomization } from './SubtitleCustomization';
 
 // Types and props
 interface WorkspaceProps {
@@ -192,6 +193,16 @@ const Workspace: React.FC<WorkspaceProps> = ({ tabId }) => {
     });
   };
 
+  // Handle subtitle customization change
+  const handleSubtitleCustomizationChange = (customization: SubtitleCustomization) => {
+    updateTabContent(tabId, {
+      metadata: {
+        ...metadata,
+        subtitleCustomization: customization
+      }
+    });
+  };
+
   // Set video path when rendering is complete
   const handleRenderComplete = (path: string) => {
     updateTabContent(tabId, { videoPath: path });
@@ -354,6 +365,81 @@ const Workspace: React.FC<WorkspaceProps> = ({ tabId }) => {
               </ControlPanelContainer>
             </PreviewGrid>
           </PreviewCard>
+
+          {/* Customization and Preview Grid */}
+          <CustomizationGrid>
+            {/* Sticky Preview Section */}
+            <StickyPreviewContainer>
+              <PreviewCard>
+                <PreviewTitle>🎥 Video Preview</PreviewTitle>
+                <PreviewContainer>
+                  {audioUrls.main && subtitles && subtitles.length > 0 ? (
+                    <Player
+                      component={SubtitledVideoContent}
+                      inputProps={{
+                        audioUrl: audioUrls.main,
+                        lyrics: subtitles,
+                        metadata: metadata,
+                        narrationUrl: audioUrls.narration,
+                        isVideoFile: mainFileIsVideo
+                      }}
+                      durationInFrames={Math.ceil((subtitles[subtitles.length - 1]?.end || 30) * metadata.frameRate)}
+                      compositionWidth={metadata.resolution === '2K' ? 2560 : metadata.resolution === '1080p' ? 1920 : metadata.resolution === '720p' ? 1280 : 854}
+                      compositionHeight={metadata.resolution === '2K' ? 1440 : metadata.resolution === '1080p' ? 1080 : metadata.resolution === '720p' ? 720 : 480}
+                      fps={metadata.frameRate}
+                      style={{
+                        width: '100%',
+                        height: 'auto',
+                        aspectRatio: '16/9'
+                      }}
+                      controls
+                      loop
+                    />
+                  ) : (
+                    <div style={{
+                      width: '100%',
+                      aspectRatio: '16/9',
+                      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: 'white',
+                      fontSize: '1.2rem',
+                      textAlign: 'center',
+                      padding: '20px',
+                      borderRadius: '8px'
+                    }}>
+                      Upload audio and add subtitles to see preview
+                    </div>
+                  )}
+                </PreviewContainer>
+              </PreviewCard>
+            </StickyPreviewContainer>
+
+            {/* Customization Controls Section */}
+            <CustomizationSection>
+              {/* Subtitle Customization Panel */}
+              <SubtitleCustomizationPanel
+                customization={metadata.subtitleCustomization || defaultCustomization}
+                onChange={handleSubtitleCustomizationChange}
+              />
+
+              {/* Render Control Panel */}
+              <PreviewCard>
+                <PreviewTitle>🎬 Render Video</PreviewTitle>
+                <RenderControlContainer>
+                  <RenderControl
+                    audioFile={audioFiles.main}
+                    lyrics={subtitles}
+                    metadata={metadata}
+                    onRenderComplete={handleRenderComplete}
+                    narrationFile={audioFiles.narration || null}
+                    isVideoFile={mainFileIsVideo}
+                  />
+                </RenderControlContainer>
+              </PreviewCard>
+            </CustomizationSection>
+          </CustomizationGrid>
         </PreviewSection>
       )}
 
@@ -429,6 +515,55 @@ const PreviewGrid = styled.div`
   @media (max-width: 980px) {
     grid-template-columns: 1fr;
   }
+`;
+
+const CustomizationGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+
+  @media (max-width: 1200px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+const StickyPreviewContainer = styled.div`
+  position: sticky;
+  top: 20px;
+  height: fit-content;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+
+  /* Custom scrollbar */
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: var(--hover-color);
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--accent-color);
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-color-dark);
+  }
+
+  @media (max-width: 1200px) {
+    position: static;
+    max-height: none;
+    overflow-y: visible;
+  }
+`;
+
+const CustomizationSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 `;
 
 const PreviewContainer = styled.div`
